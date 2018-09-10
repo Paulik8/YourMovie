@@ -47,9 +47,15 @@ public class Database {
         }
         newMovieData = new MovieData(moviePage.getPage() - 1, newPage);
         getMovieDataBox().put(newMovieData);
+        //clearMovieData();//очищение перед новыми экспериментами
     }
 
-    public void clearMovieData() {
+    private void clearMovieData() {
         getMovieDataBox().removeAll();
+    }
+
+    public void deleteDB() {
+        ((MovieSupportApplication) activity.getApplication()).getBoxStore().close();
+        ((MovieSupportApplication) activity.getApplication()).getBoxStore().deleteAllFiles();
     }
 }

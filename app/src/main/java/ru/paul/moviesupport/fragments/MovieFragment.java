@@ -29,7 +29,7 @@ public class MovieFragment extends Fragment {
     @BindView(R.id.movies_list)
     RecyclerView moviesList;
     Context context;
-    Database database;
+    //Database database;
     public static final String TAG = "MovieFragment";
 
     @Override
@@ -42,13 +42,14 @@ public class MovieFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.movies_fragment, container, false);
         ButterKnife.bind(this, v);
-        database = new Database(getActivity());
+        //database = new Database(getActivity());
         context = getContext();
         initMoviesList();
         return v;
     }
 
     private void initMoviesList() {
+        Database database = new Database(getActivity());
         MoviePage moviePage = database.getMoviePage();
         if (moviePage != null) {
             MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, moviePage.getResults());//
@@ -83,8 +84,9 @@ public class MovieFragment extends Fragment {
                 MoviePage page = response.body();
                 Log.i("page", String.valueOf(page.getResults().get(0).getId()));
                 updateMoviesList(page);
+                Database database = new Database(getActivity());
                 database.saveMovieData(page);
-                database.clearMovieData();
+                //database.deleteDB();
             }
 
             @Override
