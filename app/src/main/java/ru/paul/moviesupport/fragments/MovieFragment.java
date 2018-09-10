@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,11 @@ import butterknife.ButterKnife;
 import ru.paul.moviesupport.R;
 import ru.paul.moviesupport.adapters.MoviesFragmentAdapter;
 
-public class MoviesFragment extends Fragment {
+public class MovieFragment extends Fragment {
 
-    @BindView(R.id.movies_container)
-    RecyclerView moviesList;
+//    @BindView(R.id.movies)
+//    RecyclerView moviesList;
+    public static final String TAG = "MovieFragment";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,7 +30,8 @@ public class MoviesFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.movies_fragment, container, false);
-        ButterKnife.bind(this, v);
+        //ButterKnife.bind(this, v);
+        Log.i("movie", "movie");
         return v;
     }
 
