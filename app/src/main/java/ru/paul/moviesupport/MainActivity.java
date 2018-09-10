@@ -68,32 +68,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(receiver, intentFilter);
-        //createRequest();
 
-    }
-
-    private void createRequest() {
-
-        NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
-        Call<MoviePage> call = networkService
-                .getPage(Constants.API_KEY,
-                        Constants.LANGUAGE_ENUS,
-                        Constants.SORT_BY_POPULARITY_DESC,
-                        1);
-
-        call.enqueue(new Callback<MoviePage>() {
-
-            @Override
-            public void onResponse(@NonNull Call<MoviePage> call, @NonNull Response<MoviePage> response) {
-                MoviePage page = response.body();
-                Log.i("page", String.valueOf(page.getResults().get(0).getId()));
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-
-            }
-        });
+        Intent startIntent = new Intent(OPEN_FRAGMENT);
+        startIntent.putExtra("fragment", MOVIE_FRAGMENT);
+        sendBroadcast(startIntent);
     }
 
     private void createNavigationDrawer() {
@@ -102,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openFragment(String name) {
-        Fragment fragment = fragmentManager.findFragmentById(R.id.movies);
+        Fragment fragment = fragmentManager.findFragmentById(R.id.container);
         switch(name) {
             case MOVIE_FRAGMENT:
                 if (!(fragment instanceof MovieFragment)) {
