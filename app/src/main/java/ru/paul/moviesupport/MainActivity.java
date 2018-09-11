@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.empty_view)
+    TextView tvEmptyView;
     BroadcastReceiver receiver;
     FragmentManager fragmentManager;
 
@@ -33,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
     static final String MOVIE_FRAGMENT = "MOVIES";
 
+    public TextView getTvEmptyView() {
+        return tvEmptyView;
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -99,5 +105,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 }
