@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -33,10 +34,12 @@ import ru.paul.moviesupport.adapters.MoviesFragmentAdapter;
 import ru.paul.moviesupport.models.Movie;
 import ru.paul.moviesupport.models.MoviePage;
 
-public class MovieFragment extends Fragment {
+public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @BindView(R.id.movies_list)
     RecyclerView moviesList;
+    @BindView(R.id.swipe)
+    SwipeRefreshLayout swipeRefreshLayout;
     Context context;
     Handler handler;
     List<Movie> movie;
@@ -57,6 +60,7 @@ public class MovieFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.movies_fragment, container, false);
         ButterKnife.bind(this, v);
+        swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
         //database = new Database(getActivity());
         context = getContext();
@@ -76,7 +80,7 @@ public class MovieFragment extends Fragment {
             Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
         Log.i("pageNumber", pageNumber.toString());
-        createRequest(pageNumber);
+        createRequest(pageNumber, false);
     }
 
     private void updateMoviesList(MoviePage page) {
@@ -89,7 +93,7 @@ public class MovieFragment extends Fragment {
 
     public void setListener(List<Movie> responseMovies) {
         //if (firstPageMovies == null) {
-            moviesList.setLayoutManager(new LinearLayoutManager(context));
+        moviesList.setLayoutManager(new LinearLayoutManager(context));
         //}
         movie = new ArrayList<>(responseMovies);
         adapter = new MoviesFragmentAdapter(context, movie, moviesList);
@@ -159,7 +163,7 @@ public class MovieFragment extends Fragment {
         });
     }
 
-    private void createRequest(Integer pageNumber) {
+    private void createRequest(Integer pageNumber, final Boolean isRefresh) {
 
         NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
         Call<MoviePage> call = networkService
@@ -177,14 +181,30 @@ public class MovieFragment extends Fragment {
                 //updateMoviesList(page);
                 Database database = new Database(getActivity());
                 database.saveMovieData(page);
-                setListener(page.getResults());
+                if (!isRefresh) {
+                    setListener(page.getResults());
+                } else {
+                    movie.clear();
+                    movie.addAll(page.getResults());
+                    swipeRefreshLayout.setRefreshing(false);
+                    adapter.notifyDataSetChanged();
+                }
                 //database.deleteDB();
             }
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
                 setListener(firstPageMovies);
+                if (isRefresh) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
             }
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        createRequest(1, true);
     }
 }
