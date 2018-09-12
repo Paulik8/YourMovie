@@ -50,7 +50,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                             super.onScrolled(recyclerView, dx, dy);
 
                             totalItemCount = linearLayoutManager.getItemCount();
-                            Log.i("total", String.valueOf(totalItemCount));
                             lastVisibleItem = linearLayoutManager
                                     .findLastVisibleItemPosition();
                             if (!loading

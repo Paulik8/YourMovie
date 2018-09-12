@@ -1,7 +1,9 @@
 package ru.paul.moviesupport.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -15,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     RecyclerView moviesList;
     @BindView(R.id.swipe)
     SwipeRefreshLayout swipeRefreshLayout;
+    Boolean isSetListener = false;
     Context context;
     Handler handler;
     List<Movie> movie;
@@ -47,6 +51,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     MoviesFragmentAdapter adapter;
     Integer pageNumber = 1;
     List<Movie> requestDownMovies;
+
+    static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
+
+    Intent intent;
     //Database database;
     public static final String TAG = "MovieFragment";
 
@@ -62,9 +70,40 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         ButterKnife.bind(this, v);
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
+        intent = new Intent(HANDLER_MESSAGE);
         //database = new Database(getActivity());
         context = getContext();
         moviesList.setHasFixedSize(true);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HANDLER_MESSAGE);
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //   remove progress item
+                        movie.remove(movie.size() - 1);
+                        adapter.notifyItemRemoved(movie.size());
+                        //add items one by one
+                        Log.i("remove", "remove");
+
+                        if (requestDownMovies != null) {
+                            movie.addAll(requestDownMovies);
+                            adapter.notifyDataSetChanged();
+                        }
+//                        for (int i = start + 1; i < end; i++) {
+//                            movie.add(requestDownMovies.get(i));
+//                            adapter.notifyItemInserted(movie.size());
+//                        }
+                        adapter.setLoaded();
+                        //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        };
+        context.registerReceiver(broadcastReceiver, intentFilter);
+
         initMoviesList();
 
         return v;
@@ -79,7 +118,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             moviesList.setAdapter(adapter);
             Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
-        Log.i("pageNumber", pageNumber.toString());
+        Log.i("pageNumberInit", pageNumber.toString());
         createRequest(pageNumber, false);
     }
 
@@ -95,7 +134,11 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         //if (firstPageMovies == null) {
         moviesList.setLayoutManager(new LinearLayoutManager(context));
         //}
-        movie = new ArrayList<>(responseMovies);
+        if (responseMovies == null) {
+            movie = new ArrayList<>();
+        } else {
+            movie = new ArrayList<>(responseMovies);
+        }
         adapter = new MoviesFragmentAdapter(context, movie, moviesList);
         moviesList.setAdapter(adapter);
 
@@ -104,44 +147,43 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             public void onLoadMore() {
                 //add null , so the adapter will check view_type and show progress bar at bottom
                 createRequestDown(++pageNumber);
+                Log.i("pageNumber", pageNumber.toString());
                 movie.add(null);
                 adapter.notifyItemInserted(movie.size() - 1);
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //   remove progress item
-                        movie.remove(movie.size() - 1);
-                        adapter.notifyItemRemoved(movie.size());
-                        //add items one by one
-                        int start = 0;
-                        Log.i("remove", "remove");
-                        //pageNumber++;
-
-                        int end = start + requestDownMovies.size();
-
-                        movie.addAll(requestDownMovies);
-                        adapter.notifyDataSetChanged();
-//                        for (int i = start + 1; i < end; i++) {
-//                            movie.add(requestDownMovies.get(i));
-//                            adapter.notifyItemInserted(movie.size());
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //   remove progress item
+//                        movie.remove(movie.size() - 1);
+//                        adapter.notifyItemRemoved(movie.size());
+//                        //add items one by one
+//                        Log.i("remove", "remove");
+//
+//                        if (requestDownMovies != null) {
+//                            movie.addAll(requestDownMovies);
+//                            adapter.notifyDataSetChanged();
 //                        }
-                        adapter.setLoaded();
-                        //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
-                    }
-                }, 2000);
+////                        for (int i = start + 1; i < end; i++) {
+////                            movie.add(requestDownMovies.get(i));
+////                            adapter.notifyItemInserted(movie.size());
+////                        }
+//                        adapter.setLoaded();
+//                        //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
+//                    }
+//                }, 2000);
 
             }
         });
     }
 
-    private void createRequestDown(Integer pageNumber) {
+    private void createRequestDown(final Integer page) {
         Log.i("req", "req");
-        NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
+        final NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
         Call<MoviePage> call = networkService
                 .getPage(Constants.API_KEY,
                         Constants.LANGUAGE_ENUS,
                         Constants.SORT_BY_POPULARITY_DESC,
-                        pageNumber);
+                        page);
 
         call.enqueue(new Callback<MoviePage>() {
 
@@ -152,6 +194,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 //updateMoviesList(page);
                 Database database = new Database(getActivity());
                 database.saveMovieData(response.body());
+                context.sendBroadcast(intent);
                 //setListener(page);
                 //database.deleteDB();
             }
@@ -159,18 +202,23 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
                 //setListener(moviePage);
+                Log.i("requestFail", "fail");
+                requestDownMovies = null;
+                --pageNumber;
+                context.sendBroadcast(intent);
+                Toast.makeText(context,"Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void createRequest(Integer pageNumber, final Boolean isRefresh) {
+    private void createRequest(Integer page, final Boolean isRefresh) {
 
         NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
         Call<MoviePage> call = networkService
                 .getPage(Constants.API_KEY,
                         Constants.LANGUAGE_ENUS,
                         Constants.SORT_BY_POPULARITY_DESC,
-                        pageNumber);
+                        page);
 
         call.enqueue(new Callback<MoviePage>() {
 
@@ -183,6 +231,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 database.saveMovieData(page);
                 if (!isRefresh) {
                     setListener(page.getResults());
+                    isSetListener = true;
                 } else {
                     movie.clear();
                     movie.addAll(page.getResults());
@@ -194,7 +243,13 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-                setListener(firstPageMovies);
+                //if (firstPageMovies != null) {
+                if (!isSetListener) {
+                    setListener(firstPageMovies);
+                    isSetListener = true;
+                }
+                //}
+                Toast.makeText(context,"Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
                 if (isRefresh) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -205,6 +260,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
     @Override
     public void onRefresh() {
-        createRequest(1, true);
+        pageNumber = 1;
+        createRequest(pageNumber, true);
     }
 }
