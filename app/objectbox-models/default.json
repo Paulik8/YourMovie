@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2436841671267570814",
-      "lastPropertyId": "3:3500146165907229481",
+      "lastPropertyId": "4:8661529337714379075",
       "name": "MovieData",
       "properties": [
         {
@@ -13,8 +13,8 @@
           "name": "id"
         },
         {
-          "id": "3:3500146165907229481",
-          "name": "page"
+          "id": "4:8661529337714379075",
+          "name": "movie"
         }
       ],
       "relations": []
@@ -29,7 +29,8 @@
   "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
-    8604504873326951339
+    8604504873326951339,
+    3500146165907229481
   ],
   "retiredRelationUids": [],
   "version": 1

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2436841671267570814",
-      "lastPropertyId": "2:8604504873326951339",
+      "lastPropertyId": "3:3500146165907229481",
       "name": "MovieData",
       "properties": [
         {
@@ -13,8 +13,8 @@
           "name": "id"
         },
         {
-          "id": "2:8604504873326951339",
-          "name": "movie"
+          "id": "3:3500146165907229481",
+          "name": "page"
         }
       ],
       "relations": []
@@ -28,7 +28,9 @@
   "modelVersionParserMinimum": 4,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    8604504873326951339
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

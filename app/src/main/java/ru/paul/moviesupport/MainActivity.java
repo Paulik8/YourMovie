@@ -39,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
     public TextView getTvEmptyView() {
         return tvEmptyView;
     }
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        unregisterReceiver(receiver);
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        unregisterReceiver(receiver);
+//    }
 
     static final String SEARCH_MOVIE_FRAGMENT = "SEARCH";
 

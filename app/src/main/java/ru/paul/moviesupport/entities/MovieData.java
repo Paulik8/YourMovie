@@ -6,13 +6,13 @@ import ru.paul.moviesupport.models.MoviePage;
 
 @Entity
 public class MovieData {
-    @Id
+    @Id(assignable = true)
     public long id;//записывать id фильма, либо если при прокрутке список items продолжается, то по номеру щелчка
-    private byte [] page;
+    private byte [] movie;
 
-    public MovieData(long id, byte[] page) {
+    public MovieData(long id, byte[] movie) {
         this.id = id;
-        this.page = page;
+        this.movie = movie;
     }
 
     public long getId() {
@@ -23,11 +23,11 @@ public class MovieData {
         this.id = id;
     }
 
-    public byte[] getPage() {
-        return page;
+    public byte[] getMovie() {
+        return movie;
     }
 
-    public void setPage(byte[] page) {
-        this.page = page;
+    public void setMovie(byte[] page) {
+        this.movie = movie;
     }
 }

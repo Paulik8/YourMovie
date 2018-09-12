@@ -40,7 +40,7 @@ public class MovieFragment extends Fragment {
     Context context;
     Handler handler;
     List<Movie> movie;
-    MoviePage moviePage;
+    List<Movie> firstPageMovies;
     MoviesFragmentAdapter adapter;
     Integer pageNumber = 1;
     List<Movie> requestDownMovies;
@@ -68,14 +68,14 @@ public class MovieFragment extends Fragment {
 
     private void initMoviesList() {
         Database database = new Database(getActivity());
-        moviePage = database.getMoviePage();
-//        if (moviePage != null) {
-//            moviesList.setLayoutManager(new LinearLayoutManager(context));
-//            MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, moviePage.getResults(), moviesList);//
-//            moviesList.setAdapter(adapter);
-//            Log.i("movies", moviePage.getResults().get(0).getId().toString());
-//        }
-        Log.i("movies", "Null");
+        firstPageMovies = database.getFirstPageMovies();
+        if (firstPageMovies != null) {
+            moviesList.setLayoutManager(new LinearLayoutManager(context));
+            MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, firstPageMovies, moviesList);//
+            moviesList.setAdapter(adapter);
+            Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
+        }
+        Log.i("pageNumber", pageNumber.toString());
         createRequest(pageNumber);
     }
 
@@ -84,20 +84,14 @@ public class MovieFragment extends Fragment {
         MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, page.getResults(), moviesList);
         moviesList.setAdapter(adapter);
 
-//        if (page.getResults().isEmpty()) {
-//            moviesList.setVisibility(View.GONE);
-//            ((MainActivity)getActivity()).getTvEmptyView().setVisibility(View.VISIBLE);
-//
-//        } else {
-//            moviesList.setVisibility(View.VISIBLE);
-//            ((MainActivity)getActivity()).getTvEmptyView().setVisibility(View.GONE);
-//        }
         adapter.refreshList();
     }
 
-    public void setListener(final MoviePage page) {
-        moviesList.setLayoutManager(new LinearLayoutManager(context));
-        movie = new ArrayList<>(page.getResults());
+    public void setListener(List<Movie> responseMovies) {
+        //if (firstPageMovies == null) {
+            moviesList.setLayoutManager(new LinearLayoutManager(context));
+        //}
+        movie = new ArrayList<>(responseMovies);
         adapter = new MoviesFragmentAdapter(context, movie, moviesList);
         moviesList.setAdapter(adapter);
 
@@ -105,9 +99,9 @@ public class MovieFragment extends Fragment {
             @Override
             public void onLoadMore() {
                 //add null , so the adapter will check view_type and show progress bar at bottom
+                createRequestDown(++pageNumber);
                 movie.add(null);
                 adapter.notifyItemInserted(movie.size() - 1);
-                createRequestDown(++pageNumber);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -179,17 +173,17 @@ public class MovieFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<MoviePage> call, @NonNull Response<MoviePage> response) {
                 MoviePage page = response.body();
-                Log.i("page", String.valueOf(page.getResults().get(0).getId()));
-                updateMoviesList(page);
+                Log.i("page", page.getResults().get(0).getOriginalTitle());
+                //updateMoviesList(page);
                 Database database = new Database(getActivity());
                 database.saveMovieData(page);
-                setListener(page);
+                setListener(page.getResults());
                 //database.deleteDB();
             }
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-                setListener(moviePage);
+                setListener(firstPageMovies);
             }
         });
     }
