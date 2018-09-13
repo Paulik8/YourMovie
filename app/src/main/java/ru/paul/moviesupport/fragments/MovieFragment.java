@@ -122,14 +122,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         createRequest(pageNumber, false);
     }
 
-    private void updateMoviesList(MoviePage page) {
-        moviesList.setLayoutManager(new LinearLayoutManager(context));
-        MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, page.getResults(), moviesList);
-        moviesList.setAdapter(adapter);
-
-        adapter.refreshList();
-    }
-
     public void setListener(List<Movie> responseMovies) {
         //if (firstPageMovies == null) {
         moviesList.setLayoutManager(new LinearLayoutManager(context));
@@ -150,28 +142,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 Log.i("pageNumber", pageNumber.toString());
                 movie.add(null);
                 adapter.notifyItemInserted(movie.size() - 1);
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        //   remove progress item
-//                        movie.remove(movie.size() - 1);
-//                        adapter.notifyItemRemoved(movie.size());
-//                        //add items one by one
-//                        Log.i("remove", "remove");
-//
-//                        if (requestDownMovies != null) {
-//                            movie.addAll(requestDownMovies);
-//                            adapter.notifyDataSetChanged();
-//                        }
-////                        for (int i = start + 1; i < end; i++) {
-////                            movie.add(requestDownMovies.get(i));
-////                            adapter.notifyItemInserted(movie.size());
-////                        }
-//                        adapter.setLoaded();
-//                        //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
-//                    }
-//                }, 2000);
-
             }
         });
     }
