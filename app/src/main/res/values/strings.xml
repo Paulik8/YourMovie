@@ -8,6 +8,8 @@
     <string name="drawer_item_help">Help</string>
     <string name="drawer_item_open_source">Open Source</string>
     <string name="drawer_item_contact">Contact</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
     <string name="api_key">92b789ab860cf51f78afc8caf75d969c</string>
     <string name="language_enUS">en-US</string>

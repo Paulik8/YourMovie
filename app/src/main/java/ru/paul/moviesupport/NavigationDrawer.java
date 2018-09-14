@@ -31,7 +31,7 @@ public class NavigationDrawer implements Drawer.OnDrawerItemClickListener{
         drawer = new Drawer()
                 .withActivity(activity)
                 .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
+                //.withActionBarDrawerToggle(true)
                 .withHeader(R.layout.drawer_header)
                 .withOnDrawerItemClickListener(this)
                 .addDrawerItems(

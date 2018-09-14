@@ -51,15 +51,25 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     List<Movie> movie;
     List<Movie> firstPageMovies;
     MoviesFragmentAdapter adapter;
-    Integer pageNumber = 1;
+    Integer pageNumber;
+    BroadcastReceiver broadcastReceiver;
     List<Movie> requestDownMovies;
 
     static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
     static final String CREATE_REQUEST = "CREATE_REQUEST";
+    public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
 
     Intent intent;
     Database database;
     public static final String TAG = "MovieFragment";
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        context.unregisterReceiver(broadcastReceiver);
+        adapter.unregisterOnLoadMoreListener();
+        isSetListener = false;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +83,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         ButterKnife.bind(this, v);
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
+        pageNumber = 1;
         intent = new Intent(HANDLER_MESSAGE);
         database = new Database(getActivity());
         context = getContext();
@@ -80,7 +91,8 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HANDLER_MESSAGE);
         intentFilter.addAction(CREATE_REQUEST);
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        intentFilter.addAction(CHANGE_TOOLBAR);
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() != null) {
@@ -110,6 +122,12 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             break;
                         case CREATE_REQUEST:
                             createRequest(1, true);
+                            break;
+                        case CHANGE_TOOLBAR:
+                            Log.i("change", "change");
+                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+                            // Show back button
+                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                             break;
                     }
                 }
@@ -218,6 +236,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 //if (activity != null && (((MainActivity) activity).isGenres || )) {
                     //Database database = new Database(activity);
                     database.saveMovieData(page);
+                Log.i("pageNumberNow", pageNumber.toString());
                     if (!isRefresh) {
                         setListener(page.getResults());
                         isSetListener = true;
@@ -253,4 +272,5 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         pageNumber = 1;
         createRequest(pageNumber, true);
     }
+
 }

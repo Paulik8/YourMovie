@@ -114,6 +114,7 @@ public class Database {
         } else {
             box.put(new MovieDetailData(0, movieDetail.getIdMovie(), newMovie));
         }
+        //clearMovieDetailData();
     }
 
     public List<GenreData> getGenreData() {
@@ -148,6 +149,9 @@ public class Database {
     }
 
     private void clearMovieData() {
+        getMovieDataBox().removeAll();
+    }
+    private void clearMovieDetailData() {
         getMovieDataBox().removeAll();
     }
 

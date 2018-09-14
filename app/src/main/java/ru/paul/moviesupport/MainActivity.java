@@ -7,12 +7,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +29,7 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import ru.paul.moviesupport.fragments.MovieDetailFragment;
 import ru.paul.moviesupport.fragments.MovieFragment;
 import ru.paul.moviesupport.fragments.SearchMovieFragment;
 import ru.paul.moviesupport.models.Genre;
@@ -35,24 +41,33 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
     @BindView(R.id.empty_view)
     TextView tvEmptyView;
     BroadcastReceiver receiver;
+    public NavigationDrawer navigationDrawer;
     FragmentManager fragmentManager;
     public Boolean isGenres = false;
+    public ActionBarDrawerToggle actionBarDrawerToggle;
     public List<Genre> gerneList = new ArrayList<>();
 
-    static final String OPEN_FRAGMENT = "OPEN_FRAGMENT";
+    public static final String OPEN_FRAGMENT = "OPEN_FRAGMENT";
     static final String GENRES_REQUEST = "GENRES_REQUEST";
 
     static final String MOVIE_FRAGMENT = "MOVIES";
+    public static final String MOVIE_DETAIL_FRAGMENT = "MOVIE_DETAIL";
 
 
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        unregisterReceiver(receiver);
-//    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        // Show hamburger
+        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+    }
 
     static final String SEARCH_MOVIE_FRAGMENT = "SEARCH";
 
@@ -64,8 +79,18 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
 
         setSupportActionBar(toolbar);
+        actionBarDrawerToggle = new ActionBarDrawerToggle (this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        actionBarDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        //navigationView.setNavigationItemSelectedListener(this);
 
-        createNavigationDrawer();
+        //createNavigationDrawer();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(OPEN_FRAGMENT);
@@ -77,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 if (intent.getAction() != null) {
                     switch (intent.getAction()) {
                         case OPEN_FRAGMENT:
-                            openFragment(intent.getStringExtra("fragment"));
+                            openFragment(intent);
                         break;
                         case GENRES_REQUEST:
                             createGenresRequest();
@@ -96,18 +121,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNavigationDrawer() {
-        NavigationDrawer navigationDrawer = new NavigationDrawer(this, toolbar);
+        navigationDrawer = new NavigationDrawer(this, toolbar);
         navigationDrawer.initNavigationDrawer();
     }
 
-    public void openFragment(String name) {
+    public void openFragment(Intent intent) {
         Fragment fragment = fragmentManager.findFragmentById(R.id.container);
-        switch(name) {
+
+        switch(intent.getStringExtra("fragment")) {
             case MOVIE_FRAGMENT:
                 if (!(fragment instanceof MovieFragment)) {
                     fragmentManager
                             .beginTransaction()
                             .replace(R.id.container, new MovieFragment(), MovieFragment.TAG)
+                            .commit();
+                }
+                break;
+            case MOVIE_DETAIL_FRAGMENT:
+                if (!(fragment instanceof MovieDetailFragment)) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("id", intent.getExtras().getInt("idMovie"));
+                    MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
+                    movieDetailFragment.setArguments(bundle);
+                    fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.container, movieDetailFragment, MovieDetailFragment.TAG)
+                            .addToBackStack(null)
                             .commit();
                 }
                 break;
@@ -160,4 +199,15 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(receiver);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return false;
+    }
+
 }

@@ -19,9 +19,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.MovieDetailActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
 import ru.paul.moviesupport.R;
+import ru.paul.moviesupport.fragments.MovieFragment;
 import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
 
@@ -121,11 +123,17 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
         TextView text;
         @OnClick(R.id.movies_item)
                 void OnMoviesClick() {
-            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
-            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
-            Intent intent = new Intent(context, MovieDetailActivity.class);
-            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
-            context.startActivity(intent);
+            Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
+            Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
+            intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
+            intentActivity.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
+            context.sendBroadcast(intent);
+            context.sendBroadcast(intentActivity);
+//            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
+//            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
+//            Intent intent = new Intent(context, MovieDetailActivity.class);
+//            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
+//            context.startActivity(intent);
         }
 
         MoviesViewHolder(View itemView) {
