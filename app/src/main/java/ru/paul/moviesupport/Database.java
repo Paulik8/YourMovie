@@ -1,6 +1,7 @@
 package ru.paul.moviesupport;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -10,8 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.objectbox.Box;
+import ru.paul.moviesupport.entities.GenreData;
 import ru.paul.moviesupport.entities.MovieData;
+import ru.paul.moviesupport.entities.MovieDetailData;
+import ru.paul.moviesupport.entities.MovieDetailData_;
+import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
+import ru.paul.moviesupport.models.MovieDetail;
 import ru.paul.moviesupport.models.MoviePage;
 
 public class Database {
@@ -26,9 +32,31 @@ public class Database {
         return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(MovieData.class);
     }
 
+    private Box<MovieDetailData> getMovieDetailDataBox() {
+        return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(MovieDetailData.class);
+    }
+
+    private Box<GenreData> getGenreDataBox() {
+        return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(GenreData.class);
+    }
+
     private List<MovieData> getMovieData() {
         Box<MovieData> movieDataBox = getMovieDataBox();
         return movieDataBox.getAll();
+    }
+
+    private MovieDetailData getMovieDetailData(Integer id) {
+        Box<MovieDetailData> movieDetailDataBox = getMovieDetailDataBox();
+        return movieDetailDataBox.query().equal(MovieDetailData_.idMovie, id).build().findFirst();
+    }
+
+    public MovieDetail getMovieDetailMovie(Integer id) {
+        Box<MovieDetailData> movieDetailDataBox = getMovieDetailDataBox();
+        MovieDetailData movieDetailData = movieDetailDataBox.query().equal(MovieDetailData_.idMovie, id).build().findFirst();
+        if (movieDetailData != null) {
+            return SerializationUtils.deserialize(movieDetailData.getMovieDetail());
+        } else
+            return null;
     }
 
     public List<Movie> getFirstPageMovies() {//исправить, потому что когда открыл 2 страницы, покажет только первую, а должно показать сохраненные две
@@ -73,6 +101,50 @@ public class Database {
 
         getMovieDataBox().put(moviesToDatabase);
         //clearMovieData();//очищение перед новыми экспериментами
+    }
+
+    public void saveMovieDetailData(MovieDetail movieDetail) {
+        Box<MovieDetailData> box = getMovieDetailDataBox();
+        byte[] newMovie = SerializationUtils.serialize((Serializable) movieDetail);
+        MovieDetailData movieDetailData = getMovieDetailData(movieDetail.getIdMovie());
+        if (movieDetailData != null) {
+            movieDetailData.setIdMovie(movieDetail.getIdMovie());
+            movieDetailData.setMovieDetail(newMovie);
+            box.put(movieDetailData);
+        } else {
+            box.put(new MovieDetailData(0, movieDetail.getIdMovie(), newMovie));
+        }
+    }
+
+    public List<GenreData> getGenreData() {
+        Box<GenreData> genreDataBox = getGenreDataBox();
+        return genreDataBox.getAll();
+    }
+
+    public List<Genre> getGenreList() {
+        if (getGenreData() != null) {
+            List<GenreData> genreData = getGenreData();
+            List<Genre> genres = new ArrayList<>();
+            for (int i = 0; i < genreData.size(); i++) {
+                genres.add(new Genre(genreData.get(i).getGenreId(), genreData.get(i).getGenreName()));
+            }
+            return genres;
+        } else
+            return null;
+    }
+
+    public void saveGenreData(List<Genre> genres) {
+        List<GenreData> genreData = getGenreData();
+        if (genreData != null) {
+            getGenreDataBox().removeAll();
+            genreData.clear();
+        } else {
+            genreData = new ArrayList<>();
+        }
+        for (int i = 0; i < genres.size(); i++) {
+            genreData.add(new GenreData(i + 1, genres.get(i).getId(), genres.get(i).getName()));
+        }
+        getGenreDataBox().put(genreData);
     }
 
     private void clearMovieData() {

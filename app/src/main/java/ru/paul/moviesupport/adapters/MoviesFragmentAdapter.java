@@ -1,6 +1,7 @@
 package ru.paul.moviesupport.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,13 +12,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import ru.paul.moviesupport.MovieDetailActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
 import ru.paul.moviesupport.R;
+import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
 
 public class MoviesFragmentAdapter extends RecyclerView.Adapter {
@@ -31,6 +36,7 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     private int lastVisibleItem, totalItemCount;
     private OnLoadMoreListener onLoadMoreListener;
     private boolean loading;
+
 
     public MoviesFragmentAdapter(Context context, List<Movie> movies, RecyclerView recyclerView) {
         this.context = context;
@@ -113,6 +119,14 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
         @BindView(R.id.text)
         TextView text;
+        @OnClick(R.id.movies_item)
+                void OnMoviesClick() {
+            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
+            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
+            Intent intent = new Intent(context, MovieDetailActivity.class);
+            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
+            context.startActivity(intent);
+        }
 
         MoviesViewHolder(View itemView) {
             super(itemView);
@@ -133,6 +147,10 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    public void unregisterOnLoadMoreListener() {
+        this.onLoadMoreListener = null;
     }
 
     public void setLoaded() {

@@ -1,5 +1,6 @@
 package ru.paul.moviesupport.fragments;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +35,7 @@ import ru.paul.moviesupport.NetworkService;
 import ru.paul.moviesupport.OnLoadMoreListener;
 import ru.paul.moviesupport.R;
 import ru.paul.moviesupport.adapters.MoviesFragmentAdapter;
+import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
 import ru.paul.moviesupport.models.MoviePage;
 
@@ -53,9 +55,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     List<Movie> requestDownMovies;
 
     static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
+    static final String CREATE_REQUEST = "CREATE_REQUEST";
 
     Intent intent;
-    //Database database;
+    Database database;
     public static final String TAG = "MovieFragment";
 
     @Override
@@ -71,35 +74,45 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
         intent = new Intent(HANDLER_MESSAGE);
-        //database = new Database(getActivity());
+        database = new Database(getActivity());
         context = getContext();
         moviesList.setHasFixedSize(true);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HANDLER_MESSAGE);
+        intentFilter.addAction(CREATE_REQUEST);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //   remove progress item
-                        movie.remove(movie.size() - 1);
-                        adapter.notifyItemRemoved(movie.size());
-                        //add items one by one
-                        Log.i("remove", "remove");
+                if (intent.getAction() != null) {
+                    switch (intent.getAction()) {
+                        case HANDLER_MESSAGE:
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //   remove progress item
+                                    movie.remove(movie.size() - 1);
+                                    adapter.notifyItemRemoved(movie.size());
+                                    //add items one by one
+                                    Log.i("remove", "remove");
 
-                        if (requestDownMovies != null) {
-                            movie.addAll(requestDownMovies);
-                            adapter.notifyDataSetChanged();
-                        }
-//                        for (int i = start + 1; i < end; i++) {
-//                            movie.add(requestDownMovies.get(i));
-//                            adapter.notifyItemInserted(movie.size());
-//                        }
-                        adapter.setLoaded();
-                        //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
+                                    if (requestDownMovies != null) {
+                                        movie.addAll(requestDownMovies);
+                                        adapter.notifyDataSetChanged();
+                                    }
+    //                        for (int i = start + 1; i < end; i++) {
+    //                            movie.add(requestDownMovies.get(i));
+    //                            adapter.notifyItemInserted(movie.size());
+    //                        }
+                                    adapter.setLoaded();
+                                    //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
+                                }
+                            });
+                            break;
+                        case CREATE_REQUEST:
+                            createRequest(1, true);
+                            break;
                     }
-                });
+                }
             }
         };
         context.registerReceiver(broadcastReceiver, intentFilter);
@@ -110,7 +123,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private void initMoviesList() {
-        Database database = new Database(getActivity());
+        //Database database = new Database(getActivity());
         firstPageMovies = database.getFirstPageMovies();
         if (firstPageMovies != null) {
             moviesList.setLayoutManager(new LinearLayoutManager(context));
@@ -146,6 +159,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         });
     }
 
+//    public void refreshGenresAdapter(List<Genre> genres) {
+//        adapter.setGenres(genres);
+//    }
+
     private void createRequestDown(final Integer page) {
         Log.i("req", "req");
         final NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
@@ -162,7 +179,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 requestDownMovies = response.body().getResults();
                 Log.i("request", requestDownMovies.get(0).getOriginalTitle());
                 //updateMoviesList(page);
-                Database database = new Database(getActivity());
+                //Database database = new Database(getActivity());
                 database.saveMovieData(response.body());
                 context.sendBroadcast(intent);
                 //setListener(page);
@@ -197,17 +214,20 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 MoviePage page = response.body();
                 Log.i("page", page.getResults().get(0).getOriginalTitle());
                 //updateMoviesList(page);
-                Database database = new Database(getActivity());
-                database.saveMovieData(page);
-                if (!isRefresh) {
-                    setListener(page.getResults());
-                    isSetListener = true;
-                } else {
-                    movie.clear();
-                    movie.addAll(page.getResults());
-                    swipeRefreshLayout.setRefreshing(false);
-                    adapter.notifyDataSetChanged();
-                }
+                Activity activity = getActivity();
+                //if (activity != null && (((MainActivity) activity).isGenres || )) {
+                    //Database database = new Database(activity);
+                    database.saveMovieData(page);
+                    if (!isRefresh) {
+                        setListener(page.getResults());
+                        isSetListener = true;
+                    } else {
+                        movie.clear();
+                        movie.addAll(page.getResults());
+                        swipeRefreshLayout.setRefreshing(false);
+                        adapter.notifyDataSetChanged();
+                    }
+                //}
                 //database.deleteDB();
             }
 

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2436841671267570814",
-      "lastPropertyId": "3:3500146165907229481",
+      "lastPropertyId": "4:8661529337714379075",
       "name": "MovieData",
       "properties": [
         {
@@ -13,14 +13,34 @@
           "name": "id"
         },
         {
-          "id": "3:3500146165907229481",
-          "name": "page"
+          "id": "4:8661529337714379075",
+          "name": "movie"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:1266045302045669629",
+      "lastPropertyId": "3:7926554152916167557",
+      "name": "GenreData",
+      "properties": [
+        {
+          "id": "1:3096902904088988864",
+          "name": "id"
+        },
+        {
+          "id": "2:1047445950889092289",
+          "name": "genreId"
+        },
+        {
+          "id": "3:7926554152916167557",
+          "name": "genreName"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "1:2436841671267570814",
+  "lastEntityId": "2:1266045302045669629",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
@@ -29,7 +49,8 @@
   "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
-    8604504873326951339
+    8604504873326951339,
+    3500146165907229481
   ],
   "retiredRelationUids": [],
   "version": 1
