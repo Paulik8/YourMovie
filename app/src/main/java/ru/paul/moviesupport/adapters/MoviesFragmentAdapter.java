@@ -2,6 +2,7 @@ package ru.paul.moviesupport.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,15 +11,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ru.paul.moviesupport.Constants;
 import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.MovieDetailActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
@@ -102,7 +112,27 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MoviesViewHolder) {
-            ((MoviesViewHolder) holder).text.setText(movies.get(position).getOriginalTitle());
+
+            Double textRatedDouble = (movies.get(position).getVoteAverage() * 10);
+            Integer textRatedInt = textRatedDouble.intValue();
+            String textRatedStr = String.valueOf(textRatedInt) + "%";
+            Typeface typeface = Typeface.createFromAsset(context.getAssets(), "font/Roboto-Medium.ttf");
+            ((MoviesViewHolder) holder).moviesTitle.setTypeface(typeface);
+
+            String year = convertToString(movies.get(position).getReleaseDate());
+
+            Picasso.get()
+                    .load(Constants.IMAGE_URL + movies.get(position).getPosterPath())
+                    .fit()
+                    .into(((MoviesViewHolder) holder).moviesImg);
+            ((MoviesViewHolder) holder).moviesTitle.setText(movies.get(position).getTitle());
+            ((MoviesViewHolder) holder).moviesYear.setText(year);
+            Picasso.get()
+                    .load(R.drawable.rated)
+                    .centerCrop()
+                    .fit()
+                    .into(((MoviesViewHolder) holder).moviesImgRated);
+            ((MoviesViewHolder) holder).moviesTextRated.setText(textRatedStr);
         } else {
             ((ProgressViewHolder) holder).progressBar.setIndeterminate(true);
         }
@@ -119,10 +149,27 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
     class MoviesViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.text)
-        TextView text;
+        @BindView(R.id.movies_img)
+        ImageView moviesImg;
+        @BindView(R.id.movies_title)
+        TextView moviesTitle;
+        @BindView(R.id.movies_year)
+        TextView moviesYear;
+        @BindView(R.id.movies_img_rated)
+        ImageView moviesImgRated;
+        @BindView(R.id.movies_text_rated)
+        TextView moviesTextRated;
+        @BindView(R.id.movies_img_saved_or_common)
+        ImageView moviesImgSavedOrCommon;
+
+
+        MoviesViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
         @OnClick(R.id.movies_item)
-                void OnMoviesClick() {
+        void OnMoviesClick() {
             Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
             Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
             intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
@@ -135,12 +182,21 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 //            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
 //            context.startActivity(intent);
         }
+    }
 
-        MoviesViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+    private String convertToString(String date) {
+        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        try {
+            Date inputDate = inputFormat.parse(date);
+            DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
+            String outputDate = outputFormat.format(inputDate);
+            return outputDate;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
+
 
     class ProgressViewHolder extends RecyclerView.ViewHolder {
 
