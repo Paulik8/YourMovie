@@ -36,14 +36,7 @@ public class NavigationDrawer implements Drawer.OnDrawerItemClickListener{
                 .withOnDrawerItemClickListener(this)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.drawer_item_movies_list).withIcon(FontAwesome.Icon.faw_film).withIdentifier(1),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_search_movie).withIcon(FontAwesome.Icon.faw_search).withIdentifier(2),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_custom).withIcon(FontAwesome.Icon.faw_eye).withBadge("6"),
-                        new SectionDrawerItem().withName(R.string.drawer_item_settings),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_cog),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_github).withBadge("12+")
-                );
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_search_movie).withIcon(FontAwesome.Icon.faw_search).withIdentifier(2));
         drawer.build();
     }
 

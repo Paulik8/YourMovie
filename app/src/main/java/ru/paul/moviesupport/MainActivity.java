@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     static final String MOVIE_FRAGMENT = "MOVIES";
     public static final String MOVIE_DETAIL_FRAGMENT = "MOVIE_DETAIL";
+    static final String SEARCH_MOVIE_FRAGMENT = "SEARCH";
+    static final String STARED_MOVIE_FRAGMENT = "STARED";
 
 
     @Override
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
     }
 
-    static final String SEARCH_MOVIE_FRAGMENT = "SEARCH";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +83,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         actionBarDrawerToggle = new ActionBarDrawerToggle (this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
+
         actionBarDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
+        setupDrawerContent(navigationView);
+        actionBarDrawerToggle.syncState();
         //navigationView.setNavigationItemSelectedListener(this);
 
         //createNavigationDrawer();
@@ -120,10 +124,51 @@ public class MainActivity extends AppCompatActivity {
         sendBroadcast(startIntent);
     }
 
-    private void createNavigationDrawer() {
-        navigationDrawer = new NavigationDrawer(this, toolbar);
-        navigationDrawer.initNavigationDrawer();
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        selectDrawerItem(menuItem);
+                        return true;
+                    }
+                });
     }
+
+    public void selectDrawerItem(MenuItem menuItem) {
+        switch(menuItem.getItemId()) {
+            case R.id.nav_first_fragment:
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+                Intent intentMovies = new Intent(OPEN_FRAGMENT);
+                intentMovies.putExtra("fragment", MOVIE_FRAGMENT);
+                this.sendBroadcast(intentMovies);
+                break;
+            case R.id.nav_second_fragment:
+                Intent intentSearch = new Intent(OPEN_FRAGMENT);
+                intentSearch.putExtra("fragment", SEARCH_MOVIE_FRAGMENT);
+                this.sendBroadcast(intentSearch);
+                break;
+            case R.id.nav_third_fragment:
+                Intent intentStared = new Intent(OPEN_FRAGMENT);
+                intentStared.putExtra("fragment", STARED_MOVIE_FRAGMENT);
+                this.sendBroadcast(intentStared);
+                break;
+        }
+
+        // Highlight the selected item has been done by NavigationView
+        menuItem.setChecked(true);
+        // Set action bar title
+        setTitle(menuItem.getTitle());
+        // Close the navigation drawer
+        drawerLayout.closeDrawers();
+    }
+
+
+//    private void createNavigationDrawer() {
+//        navigationDrawer = new NavigationDrawer(this, toolbar);
+//        navigationDrawer.initNavigationDrawer();
+//    }
 
     public void openFragment(Intent intent) {
         Fragment fragment = fragmentManager.findFragmentById(R.id.container);

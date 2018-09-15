@@ -38,9 +38,49 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "3:5556626941842568399",
+      "lastPropertyId": "3:1004440221533042568",
+      "name": "MovieDetailData",
+      "properties": [
+        {
+          "id": "1:4897567437419281709",
+          "name": "id"
+        },
+        {
+          "id": "2:1846766022187081503",
+          "name": "idMovie"
+        },
+        {
+          "id": "3:1004440221533042568",
+          "name": "movieDetail"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:93926686816995440",
+      "lastPropertyId": "3:2078552954988958644",
+      "name": "StaredData",
+      "properties": [
+        {
+          "id": "1:5570616645272590797",
+          "name": "id"
+        },
+        {
+          "id": "2:4035952302076385232",
+          "name": "idMovie"
+        },
+        {
+          "id": "3:2078552954988958644",
+          "name": "movie"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "2:1266045302045669629",
+  "lastEntityId": "4:93926686816995440",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

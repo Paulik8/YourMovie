@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+    <item
+        android:id="@+id/nav_first_fragment"
+        android:icon="@drawable/movies_icon"
+        android:title="@string/drawer_item_movies_list" />
+        <item
+            android:id="@+id/nav_second_fragment"
+            android:icon="@drawable/search_icon"
+            android:title="@string/drawer_item_search_movie" />
+        <item
+            android:id="@+id/nav_third_fragment"
+            android:icon="@drawable/star_icon"
+            android:title="@string/drawer_item_stared_movie" />
+</group>
+</menu>

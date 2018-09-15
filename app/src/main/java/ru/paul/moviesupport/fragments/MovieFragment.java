@@ -67,7 +67,9 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void onDestroyView() {
         super.onDestroyView();
         context.unregisterReceiver(broadcastReceiver);
-        adapter.unregisterOnLoadMoreListener();
+        if (adapter != null) {
+            adapter.unregisterOnLoadMoreListener();
+        }
         isSetListener = false;
     }
 
@@ -147,6 +149,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             moviesList.setLayoutManager(new LinearLayoutManager(context));
             MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, firstPageMovies, moviesList);//
             moviesList.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
             Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
         Log.i("pageNumberInit", pageNumber.toString());
@@ -154,8 +157,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     public void setListener(List<Movie> responseMovies) {
-        //if (firstPageMovies == null) {
-        moviesList.setLayoutManager(new LinearLayoutManager(context));
+        if (firstPageMovies == null) {
+            moviesList.setLayoutManager(new LinearLayoutManager(context));
+        }
+        Log.i("set", "set");
         //}
         if (responseMovies == null) {
             movie = new ArrayList<>();
@@ -164,6 +169,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
         adapter = new MoviesFragmentAdapter(context, movie, moviesList);
         moviesList.setAdapter(adapter);
+        //adapter.notifyDataSetChanged();//
 
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
@@ -198,6 +204,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 Log.i("request", requestDownMovies.get(0).getOriginalTitle());
                 //updateMoviesList(page);
                 //Database database = new Database(getActivity());
+                //TODO
                 database.saveMovieData(response.body());
                 context.sendBroadcast(intent);
                 //setListener(page);
@@ -235,6 +242,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 Activity activity = getActivity();
                 //if (activity != null && (((MainActivity) activity).isGenres || )) {
                     //Database database = new Database(activity);
+                //TODO
                     database.saveMovieData(page);
                 Log.i("pageNumberNow", pageNumber.toString());
                     if (!isRefresh) {

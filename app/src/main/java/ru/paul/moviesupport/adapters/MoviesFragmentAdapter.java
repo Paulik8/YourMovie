@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.balysv.materialripple.MaterialRippleLayout;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -30,11 +29,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ru.paul.moviesupport.Constants;
 import ru.paul.moviesupport.MainActivity;
-import ru.paul.moviesupport.MovieDetailActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
 import ru.paul.moviesupport.R;
 import ru.paul.moviesupport.fragments.MovieFragment;
-import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
 
 public class MoviesFragmentAdapter extends RecyclerView.Adapter {
@@ -48,7 +45,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     private int lastVisibleItem, totalItemCount;
     private OnLoadMoreListener onLoadMoreListener;
     private boolean loading;
-
 
     public MoviesFragmentAdapter(Context context, List<Movie> movies, RecyclerView recyclerView) {
         this.context = context;
@@ -82,10 +78,12 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                         }
                     });
         }
+
     }
 
     @Override
     public int getItemViewType(int position) {
+        Log.i("adapter", String.valueOf(position));
         return movies.get(position) != null ? VIEW_ITEM : VIEW_PROG;
     }
 
@@ -110,9 +108,21 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+
         if (holder instanceof MoviesViewHolder) {
 
+            ((MoviesViewHolder) holder).materialRippleLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
+                    Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
+                    intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
+                    intentActivity.putExtra("idMovie", movies.get(position).getId());
+                    context.sendBroadcast(intent);
+                    context.sendBroadcast(intentActivity);
+                }
+            });
             Double textRatedDouble = (movies.get(position).getVoteAverage() * 10);
             Integer textRatedInt = textRatedDouble.intValue();
             String textRatedStr = String.valueOf(textRatedInt) + "%";
@@ -128,11 +138,22 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
             ((MoviesViewHolder) holder).moviesTitle.setText(movies.get(position).getTitle());
             ((MoviesViewHolder) holder).moviesYear.setText(year);
             Picasso.get()
-                    .load(R.drawable.rated)
-                    .centerCrop()
+                    .load(R.drawable.vote)
                     .fit()
                     .into(((MoviesViewHolder) holder).moviesImgRated);
             ((MoviesViewHolder) holder).moviesTextRated.setText(textRatedStr);
+
+            Integer image;
+
+            if (movies.get(position).isSaved()) {
+                image = R.drawable.stared_img;
+            } else {
+                image = R.drawable.common_img;
+            }
+            Picasso.get()
+                    .load(image)
+                    .fit()
+                    .into(((MoviesViewHolder)holder).moviesImgSavedOrCommon);
         } else {
             ((ProgressViewHolder) holder).progressBar.setIndeterminate(true);
         }
@@ -149,6 +170,8 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
     class MoviesViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.movies_item)
+        MaterialRippleLayout materialRippleLayout;
         @BindView(R.id.movies_img)
         ImageView moviesImg;
         @BindView(R.id.movies_title)
@@ -168,20 +191,20 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
             ButterKnife.bind(this, itemView);
         }
 
-        @OnClick(R.id.movies_item)
-        void OnMoviesClick() {
-            Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
-            Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
-            intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
-            intentActivity.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
-            context.sendBroadcast(intent);
-            context.sendBroadcast(intentActivity);
-//            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
-//            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
-//            Intent intent = new Intent(context, MovieDetailActivity.class);
-//            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
-//            context.startActivity(intent);
-        }
+//        @OnClick(R.id.movies_item)
+//        void OnMoviesClick() {
+//            Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
+//            Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
+//            intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
+//            intentActivity.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
+//            context.sendBroadcast(intent);
+//            context.sendBroadcast(intentActivity);
+////            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
+////            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
+////            Intent intent = new Intent(context, MovieDetailActivity.class);
+////            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
+////            context.startActivity(intent);
+//        }
     }
 
     private String convertToString(String date) {

@@ -14,6 +14,16 @@ public class Movie implements Serializable{
     @SerializedName("id")
     @Expose
     private Integer id;
+
+    public boolean isSaved() {
+        return isSaved;
+    }
+
+    public void setSaved(boolean saved) {
+        isSaved = saved;
+    }
+
+    private boolean isSaved = false;
     @SerializedName("video")
     @Expose
     private Boolean video;

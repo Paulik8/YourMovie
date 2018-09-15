@@ -15,6 +15,8 @@ import ru.paul.moviesupport.entities.GenreData;
 import ru.paul.moviesupport.entities.MovieData;
 import ru.paul.moviesupport.entities.MovieDetailData;
 import ru.paul.moviesupport.entities.MovieDetailData_;
+import ru.paul.moviesupport.entities.StaredData;
+import ru.paul.moviesupport.entities.StaredData_;
 import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Movie;
 import ru.paul.moviesupport.models.MovieDetail;
@@ -36,6 +38,10 @@ public class Database {
         return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(MovieDetailData.class);
     }
 
+    private Box<StaredData> getStaredDataBox() {
+        return ((MovieSupportApplication)activity.getApplication()).getBoxStore().boxFor(StaredData.class);
+    }
+
     private Box<GenreData> getGenreDataBox() {
         return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(GenreData.class);
     }
@@ -43,6 +49,26 @@ public class Database {
     private List<MovieData> getMovieData() {
         Box<MovieData> movieDataBox = getMovieDataBox();
         return movieDataBox.getAll();
+    }
+
+    private StaredData getStaredOneData(Integer id) {
+        Box<StaredData> staredDataBox = getStaredDataBox();
+        return staredDataBox.query().equal(StaredData_.movieId, id).build().findFirst();
+    }
+
+    private List<StaredData> getStaredData() {
+        return getStaredDataBox().getAll();
+    }
+
+    public void saveStaredData(Movie movie) {
+
+    }
+
+    public void removeFromStaredData(Integer id) {
+        StaredData staredData = getStaredOneData(id);
+        if (staredData != null) {
+            getStaredDataBox().remove(staredData);
+        }
     }
 
     private MovieDetailData getMovieDetailData(Integer id) {
