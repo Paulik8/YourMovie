@@ -61,7 +61,7 @@
     },
     {
       "id": "4:93926686816995440",
-      "lastPropertyId": "3:2078552954988958644",
+      "lastPropertyId": "4:986981845372761658",
       "name": "StaredData",
       "properties": [
         {
@@ -69,12 +69,12 @@
           "name": "id"
         },
         {
-          "id": "2:4035952302076385232",
-          "name": "idMovie"
-        },
-        {
           "id": "3:2078552954988958644",
           "name": "movie"
+        },
+        {
+          "id": "4:986981845372761658",
+          "name": "movieId"
         }
       ],
       "relations": []
@@ -90,7 +90,8 @@
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     8604504873326951339,
-    3500146165907229481
+    3500146165907229481,
+    4035952302076385232
   ],
   "retiredRelationUids": [],
   "version": 1

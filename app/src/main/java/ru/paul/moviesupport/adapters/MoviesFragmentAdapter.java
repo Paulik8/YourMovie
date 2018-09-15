@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.balysv.materialripple.MaterialRippleLayout;
 import com.squareup.picasso.Picasso;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -83,7 +85,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        Log.i("adapter", String.valueOf(position));
         return movies.get(position) != null ? VIEW_ITEM : VIEW_PROG;
     }
 
@@ -108,7 +109,7 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
 
         if (holder instanceof MoviesViewHolder) {
 
@@ -123,6 +124,35 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                     context.sendBroadcast(intentActivity);
                 }
             });
+
+            setImageStaredOrCommon(position, holder);
+
+            ((MoviesViewHolder) holder).moviesImgSavedOrCommon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Movie movie = movies.get(position);
+                    Integer idMovie = movie.getId();
+                    byte[] movieByte = SerializationUtils.serialize(movie);
+                    Log.i("adapter", String.valueOf(position));
+                    Intent intent = new Intent(MovieFragment.STARED);
+                    intent.putExtra("movie", idMovie);
+                    Intent intentSaved = new Intent(MovieFragment.STARED_SAVE);
+                    intentSaved.putExtra("movieByte", movieByte);
+                    intentSaved.putExtra("movie", idMovie);
+                    context.sendBroadcast(intent);
+                    context.sendBroadcast(intentSaved);
+
+                    if (!movie.isSaved()) {
+                        movie.setSaved(true);
+                    } else {
+                        movie.setSaved(false);
+                    }
+                    notifyItemChanged(position);
+                    //setImageStaredOrCommon(position, holder);
+
+                }
+            });
+
             Double textRatedDouble = (movies.get(position).getVoteAverage() * 10);
             Integer textRatedInt = textRatedDouble.intValue();
             String textRatedStr = String.valueOf(textRatedInt) + "%";
@@ -142,18 +172,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                     .fit()
                     .into(((MoviesViewHolder) holder).moviesImgRated);
             ((MoviesViewHolder) holder).moviesTextRated.setText(textRatedStr);
-
-            Integer image;
-
-            if (movies.get(position).isSaved()) {
-                image = R.drawable.stared_img;
-            } else {
-                image = R.drawable.common_img;
-            }
-            Picasso.get()
-                    .load(image)
-                    .fit()
-                    .into(((MoviesViewHolder)holder).moviesImgSavedOrCommon);
         } else {
             ((ProgressViewHolder) holder).progressBar.setIndeterminate(true);
         }
@@ -218,6 +236,20 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void setImageStaredOrCommon(Integer pos, RecyclerView.ViewHolder holder) {
+        Integer image;
+        Movie movie = movies.get(pos);
+        if (!movie.isSaved()) {
+            image = R.drawable.common_img;
+        } else {
+            image = R.drawable.stared_img;
+        }
+        Picasso.get()
+                .load(image)
+                .fit()
+                .into(((MoviesViewHolder)holder).moviesImgSavedOrCommon);
     }
 
 

@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,8 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
     static final String CREATE_REQUEST = "CREATE_REQUEST";
     public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
+    public static final String STARED = "STARED";
+    public static final String STARED_SAVE = "STARED_SAVE";
 
     Intent intent;
     Database database;
@@ -94,6 +98,8 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         intentFilter.addAction(HANDLER_MESSAGE);
         intentFilter.addAction(CREATE_REQUEST);
         intentFilter.addAction(CHANGE_TOOLBAR);
+        intentFilter.addAction(STARED);
+        intentFilter.addAction(STARED_SAVE);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -130,6 +136,12 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
                             // Show back button
                             ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                            break;
+                        case STARED:
+                            database.updateMovieData(intent.getExtras().getInt("movie"));
+                            break;
+                        case STARED_SAVE:
+                            database.saveStaredData(intent.getExtras().getByteArray("movieByte"), intent.getExtras().getInt("movie"));
                             break;
                     }
                 }
@@ -200,15 +212,22 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
             @Override
             public void onResponse(@NonNull Call<MoviePage> call, @NonNull Response<MoviePage> response) {
-                requestDownMovies = response.body().getResults();
-                Log.i("request", requestDownMovies.get(0).getOriginalTitle());
-                //updateMoviesList(page);
-                //Database database = new Database(getActivity());
-                //TODO
-                database.saveMovieData(response.body());
-                context.sendBroadcast(intent);
-                //setListener(page);
-                //database.deleteDB();
+                MoviePage page = response.body();
+                if (page != null) {
+                    List<Movie> movies = page.getResults();
+                    //TODO
+                    for (int i = 0; i < movies.size(); i++) {
+                        Integer result = database.checkStaredData(movies.get(i).getId());
+                        if (result == 1) {
+                            movies.get(i).setSaved(true);
+                        } else {
+                            movies.get(i).setSaved(false);
+                        }
+                    }
+                    database.saveMovieData(page);
+                    requestDownMovies = movies;
+                    context.sendBroadcast(intent);
+                }
             }
 
             @Override
@@ -237,24 +256,30 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             @Override
             public void onResponse(@NonNull Call<MoviePage> call, @NonNull Response<MoviePage> response) {
                 MoviePage page = response.body();
-                Log.i("page", page.getResults().get(0).getOriginalTitle());
-                //updateMoviesList(page);
-                Activity activity = getActivity();
-                //if (activity != null && (((MainActivity) activity).isGenres || )) {
-                    //Database database = new Database(activity);
-                //TODO
-                    database.saveMovieData(page);
-                Log.i("pageNumberNow", pageNumber.toString());
-                    if (!isRefresh) {
-                        setListener(page.getResults());
-                        isSetListener = true;
-                    } else {
-                        movie.clear();
-                        movie.addAll(page.getResults());
-                        swipeRefreshLayout.setRefreshing(false);
-                        adapter.notifyDataSetChanged();
+                if (page != null) {
+                    List<Movie> movies = page.getResults();
+                    Log.i("page", page.getResults().get(0).getOriginalTitle());
+                    //TODO
+                    for (int i = 0; i < movies.size(); i++) {
+                        Integer result = database.checkStaredData(movies.get(i).getId());
+                        if (result == 1) {
+                            movies.get(i).setSaved(true);
+                        } else {
+                            movies.get(i).setSaved(false);
+                        }
                     }
-                //}
+                        database.saveMovieData(page);
+                    Log.i("pageNumberNow", pageNumber.toString());
+                        if (!isRefresh) {
+                            setListener(movies);
+                            isSetListener = true;
+                        } else {
+                            movie.clear();
+                            movie.addAll(movies);
+                            swipeRefreshLayout.setRefreshing(false);
+                            adapter.notifyDataSetChanged();
+                        }
+                }
                 //database.deleteDB();
             }
 

@@ -32,6 +32,7 @@ import retrofit2.Response;
 import ru.paul.moviesupport.fragments.MovieDetailFragment;
 import ru.paul.moviesupport.fragments.MovieFragment;
 import ru.paul.moviesupport.fragments.SearchMovieFragment;
+import ru.paul.moviesupport.fragments.StaredMovieFragment;
 import ru.paul.moviesupport.models.Genre;
 import ru.paul.moviesupport.models.Genres;
 import ru.paul.moviesupport.models.MoviePage;
@@ -95,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
         //navigationView.setNavigationItemSelectedListener(this);
 
         //createNavigationDrawer();
+//        Database database = new Database(this);
+//        database.clearMovieData();
+//        database.clearStaredData();
+//        database.clearMovieDetailData();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(OPEN_FRAGMENT);
@@ -179,6 +184,14 @@ public class MainActivity extends AppCompatActivity {
                     fragmentManager
                             .beginTransaction()
                             .replace(R.id.container, new MovieFragment(), MovieFragment.TAG)
+                            .commit();
+                }
+                break;
+            case STARED_MOVIE_FRAGMENT:
+                if (!(fragment instanceof StaredMovieFragment)) {
+                    fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.container, new StaredMovieFragment(), StaredMovieFragment.TAG)
                             .commit();
                 }
                 break;

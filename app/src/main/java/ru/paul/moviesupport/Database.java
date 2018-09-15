@@ -1,6 +1,7 @@
 package ru.paul.moviesupport;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.util.Log;
 
@@ -11,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.objectbox.Box;
+import io.objectbox.query.Query;
 import ru.paul.moviesupport.entities.GenreData;
 import ru.paul.moviesupport.entities.MovieData;
+import ru.paul.moviesupport.entities.MovieData_;
 import ru.paul.moviesupport.entities.MovieDetailData;
 import ru.paul.moviesupport.entities.MovieDetailData_;
 import ru.paul.moviesupport.entities.StaredData;
@@ -56,12 +59,67 @@ public class Database {
         return staredDataBox.query().equal(StaredData_.movieId, id).build().findFirst();
     }
 
+    public Integer checkStaredData(Integer id) {
+        Movie movieFromDatabase;
+        Box<StaredData> movieDataBox = getStaredDataBox();
+        Query<StaredData> query =  movieDataBox.query().equal(StaredData_.movieId, id).build();
+        StaredData movieDataFromDatabase = query.findFirst();
+        if (movieDataFromDatabase != null) {
+            movieFromDatabase = SerializationUtils.deserialize(movieDataFromDatabase.getMovie());
+            if (movieFromDatabase.isSaved()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        return -1;
+    }
+
+    public void updateMovieData(Integer id) {
+        Movie movieFromDatabase;
+        Box<MovieData> movieDataBox = getMovieDataBox();
+        //byte [] movieByte = SerializationUtils.serialize(movie);
+        Query<MovieData> query =  movieDataBox.query().equal(MovieData_.idOfMovie, id).build();
+        MovieData movieDataFromDatabase = query.findFirst();
+        movieFromDatabase = SerializationUtils.deserialize(movieDataFromDatabase.getMovie());
+        if (!movieFromDatabase.isSaved()) {
+            movieFromDatabase.setSaved(true);
+        } else {
+            movieFromDatabase.setSaved(false);
+        }
+        byte[] movieByteToDatabase = SerializationUtils.serialize(movieFromDatabase);
+        movieDataFromDatabase.setMovie(movieByteToDatabase);
+        movieDataBox.put(movieDataFromDatabase);
+        Log.i("tag","tag");
+    }
+
     private List<StaredData> getStaredData() {
         return getStaredDataBox().getAll();
     }
 
-    public void saveStaredData(Movie movie) {
+    public List<Movie> getStaredMovies() {
+        List<StaredData> staredData = getStaredData();
+        List<Movie> movies = new ArrayList<>();
+        if (staredData != null) {
+            for (int i = 0; i < staredData.size(); i++) {
+                Movie movie = SerializationUtils.deserialize(staredData.get(i).getMovie());
+                movies.add(movie);
+            }
+        }
+        return movies;
+    }
 
+    public void saveStaredData(byte[] movieByte, Integer id) {
+        Box<StaredData> box = getStaredDataBox();
+        Movie movie = SerializationUtils.deserialize(movieByte);
+        if (!movie.isSaved()) {
+            movie.setSaved(true);
+        } else {
+            movie.setSaved(false);
+        }
+        byte[] movieByteToDatabase = SerializationUtils.serialize(movie);
+        box.put(new StaredData(0, id, movieByteToDatabase));
+        //clearStaredData();
     }
 
     public void removeFromStaredData(Integer id) {
@@ -122,7 +180,7 @@ public class Database {
         }
         for (int i = 0; i < moviePage.getResults().size(); i++) {
             byte[] newMovie = SerializationUtils.serialize(movies.get(i));
-            moviesToDatabase.add(new MovieData(i + 1 + getMovieData().size(), newMovie));
+            moviesToDatabase.add(new MovieData(i + 1 + getMovieData().size(), movies.get(i).getId(), newMovie));
         }
 
         getMovieDataBox().put(moviesToDatabase);
@@ -174,10 +232,13 @@ public class Database {
         getGenreDataBox().put(genreData);
     }
 
-    private void clearMovieData() {
+    public void clearMovieData() {
         getMovieDataBox().removeAll();
     }
-    private void clearMovieDetailData() {
+    public void clearStaredData() {
+        getStaredDataBox().removeAll();
+    }
+    public void clearMovieDetailData() {
         getMovieDataBox().removeAll();
     }
 

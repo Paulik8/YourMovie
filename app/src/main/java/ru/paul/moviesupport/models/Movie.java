@@ -15,15 +15,15 @@ public class Movie implements Serializable{
     @Expose
     private Integer id;
 
-    public boolean isSaved() {
+    public Boolean isSaved() {
         return isSaved;
     }
 
-    public void setSaved(boolean saved) {
+    public void setSaved(Boolean saved) {
         isSaved = saved;
     }
 
-    private boolean isSaved = false;
+    private Boolean isSaved = false;
     @SerializedName("video")
     @Expose
     private Boolean video;
