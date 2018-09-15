@@ -20,6 +20,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.paul.moviesupport.Database;
+import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.R;
 import ru.paul.moviesupport.adapters.StaredMovieFragmentAdapter;
 import ru.paul.moviesupport.models.Movie;
@@ -35,6 +36,7 @@ public class StaredMovieFragment extends Fragment {
     RecyclerView recyclerView;
 
     public static final String REMOVE_MOVIE = "REMOVE_MOVIE";
+    public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
 
     public static final String TAG = "StaredMovie";
 
@@ -62,8 +64,9 @@ public class StaredMovieFragment extends Fragment {
         //recyclerView.setHasFixedSize(true);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(REMOVE_MOVIE);
+        intentFilter.addAction(CHANGE_TOOLBAR);
 
-        BroadcastReceiver receiver = new BroadcastReceiver() {
+        receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() != null) {
@@ -76,6 +79,11 @@ public class StaredMovieFragment extends Fragment {
                             database.removeFromStaredData(intent.getExtras().getInt("movie"));
                             adapter.notifyItemRemoved(pos);
                             database.updateMovieData(movie);
+                            break;
+                        case CHANGE_TOOLBAR:
+                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+                            // Show back button
+                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                             break;
                     }
                 }

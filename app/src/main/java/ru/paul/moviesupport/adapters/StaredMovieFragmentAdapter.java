@@ -49,7 +49,7 @@ public class StaredMovieFragmentAdapter extends RecyclerView.Adapter{
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         ((StaredMovieViewHolder) holder).materialRippleLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,11 +67,11 @@ public class StaredMovieFragmentAdapter extends RecyclerView.Adapter{
         ((StaredMovieViewHolder) holder).moviesImgSavedOrCommon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Movie movie = movies.get(position);
+                Movie movie = movies.get(holder.getAdapterPosition());
                 Integer idMovie = movie.getId();
                 Intent intent = new Intent(StaredMovieFragment.REMOVE_MOVIE);
                 intent.putExtra("movie", idMovie);
-                intent.putExtra("position", position);
+                intent.putExtra("position", holder.getAdapterPosition());
                 context.sendBroadcast(intent);
             }
         });

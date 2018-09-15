@@ -76,12 +76,12 @@
                 </RelativeLayout>
                 </LinearLayout>
                 <LinearLayout
+                    android:id="@+id/saved_or_common_click"
                     android:layout_weight="1"
                     android:gravity="end"
                     android:paddingEnd="8dp"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    tools:ignore="RtlSymmetry">
+                    android:layout_height="40dp">
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/movies_img_saved_or_common"
                         android:layout_width="30dp"

@@ -81,6 +81,9 @@ public class Database {
         //byte [] movieByte = SerializationUtils.serialize(movie);
         Query<MovieData> query =  movieDataBox.query().equal(MovieData_.idOfMovie, id).build();
         MovieData movieDataFromDatabase = query.findFirst();
+        if (movieDataFromDatabase == null) {
+            return;
+        }
         movieFromDatabase = SerializationUtils.deserialize(movieDataFromDatabase.getMovie());
         if (!movieFromDatabase.isSaved()) {
             movieFromDatabase.setSaved(true);
