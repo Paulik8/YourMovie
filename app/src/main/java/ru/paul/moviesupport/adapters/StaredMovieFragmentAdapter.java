@@ -64,6 +64,18 @@ public class StaredMovieFragmentAdapter extends RecyclerView.Adapter{
 
         setImageStaredOrCommon(position, holder);
 
+        ((StaredMovieViewHolder) holder).moviesImgSavedOrCommon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Movie movie = movies.get(position);
+                Integer idMovie = movie.getId();
+                Intent intent = new Intent(StaredMovieFragment.REMOVE_MOVIE);
+                intent.putExtra("movie", idMovie);
+                intent.putExtra("position", position);
+                context.sendBroadcast(intent);
+            }
+        });
+
         Double textRatedDouble = (movies.get(position).getVoteAverage() * 10);
         Integer textRatedInt = textRatedDouble.intValue();
         String textRatedStr = String.valueOf(textRatedInt) + "%";

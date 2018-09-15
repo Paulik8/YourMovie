@@ -60,7 +60,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
     static final String CREATE_REQUEST = "CREATE_REQUEST";
     public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
-    public static final String STARED = "STARED";
+    public static final String STARED_REMOVE = "STARED_REMOVE";
     public static final String STARED_SAVE = "STARED_SAVE";
 
     Intent intent;
@@ -98,7 +98,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         intentFilter.addAction(HANDLER_MESSAGE);
         intentFilter.addAction(CREATE_REQUEST);
         intentFilter.addAction(CHANGE_TOOLBAR);
-        intentFilter.addAction(STARED);
+        intentFilter.addAction(STARED_REMOVE);
         intentFilter.addAction(STARED_SAVE);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -137,11 +137,15 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             // Show back button
                             ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                             break;
-                        case STARED:
-                            database.updateMovieData(intent.getExtras().getInt("movie"));
+                        case STARED_REMOVE:
+                            Integer integerRemove = intent.getExtras().getInt("movie");
+                            database.updateMovieData(integerRemove);
+                            database.removeFromStaredData(integerRemove);
                             break;
                         case STARED_SAVE:
-                            database.saveStaredData(intent.getExtras().getByteArray("movieByte"), intent.getExtras().getInt("movie"));
+                            Integer integerSave = intent.getExtras().getInt("movie");
+                            database.updateMovieData(integerSave);
+                            database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
                             break;
                     }
                 }

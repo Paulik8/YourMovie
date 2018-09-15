@@ -1,6 +1,9 @@
 package ru.paul.moviesupport.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,10 +30,22 @@ public class StaredMovieFragment extends Fragment {
     Context context;
     List<Movie> movies;
     StaredMovieFragmentAdapter adapter;
+    BroadcastReceiver receiver;
     @BindView(R.id.stared_movies_list)
     RecyclerView recyclerView;
 
+    public static final String REMOVE_MOVIE = "REMOVE_MOVIE";
+
     public static final String TAG = "StaredMovie";
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (receiver != null) {
+            context.unregisterReceiver(receiver);
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +60,31 @@ public class StaredMovieFragment extends Fragment {
         context = getContext();
         database = new Database(getActivity());
         //recyclerView.setHasFixedSize(true);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(REMOVE_MOVIE);
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction() != null) {
+                    switch (intent.getAction()) {
+                        case REMOVE_MOVIE:
+                            Integer pos = intent.getExtras().getInt("position");
+                            Integer movie = intent.getExtras().getInt("movie");
+                            Movie movieRemove = movies.get(pos);
+                            movies.remove(movieRemove);
+                            database.removeFromStaredData(intent.getExtras().getInt("movie"));
+                            adapter.notifyItemRemoved(pos);
+                            database.updateMovieData(movie);
+                            break;
+                    }
+                }
+            }
+        };
+        context.registerReceiver(receiver, intentFilter);
+
         initStaredList();
+
         return v;
     }
 
@@ -53,10 +93,11 @@ public class StaredMovieFragment extends Fragment {
         getStaredFromDatabase();
         adapter = new StaredMovieFragmentAdapter(context, movies);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
     }
 
     private void getStaredFromDatabase() {
+        movies = new ArrayList<>();
         movies = database.getStaredMovies();
     }
 }

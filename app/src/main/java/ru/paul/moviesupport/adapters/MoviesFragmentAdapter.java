@@ -132,15 +132,17 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     Movie movie = movies.get(position);
                     Integer idMovie = movie.getId();
-                    byte[] movieByte = SerializationUtils.serialize(movie);
-                    Log.i("adapter", String.valueOf(position));
-                    Intent intent = new Intent(MovieFragment.STARED);
-                    intent.putExtra("movie", idMovie);
-                    Intent intentSaved = new Intent(MovieFragment.STARED_SAVE);
-                    intentSaved.putExtra("movieByte", movieByte);
-                    intentSaved.putExtra("movie", idMovie);
+                    Intent intent;
+                    if (!movie.isSaved()) {
+                        byte[] movieByte = SerializationUtils.serialize(movie);
+                        intent = new Intent(MovieFragment.STARED_SAVE);
+                        intent.putExtra("movieByte", movieByte);
+                        intent.putExtra("movie", idMovie);
+                    } else {
+                        intent = new Intent(MovieFragment.STARED_REMOVE);
+                        intent.putExtra("movie", idMovie);
+                    }
                     context.sendBroadcast(intent);
-                    context.sendBroadcast(intentSaved);
 
                     if (!movie.isSaved()) {
                         movie.setSaved(true);
