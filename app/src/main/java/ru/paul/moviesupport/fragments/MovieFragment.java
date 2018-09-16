@@ -172,7 +172,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
         Log.i("pageNumberInit", pageNumber.toString());
         if (isFirst) {
-            createRequest(pageNumber, false);
+                                                                                                                                                                                                                                                                                                                                                                                                        createRequest(pageNumber, false);
             isFirst = false;
         }
     }
@@ -246,7 +246,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 requestDownMovies = null;
                 --pageNumber;
                 context.sendBroadcast(intent);
-                Toast.makeText(getActivity().getApplicationContext(),"Please check you network connection.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Please check your network connection.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -300,7 +300,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     isSetListener = true;
                 }
                 //}
-                Toast.makeText(getActivity().getApplicationContext(),"Please check you network connection.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Please check your network connection.", Toast.LENGTH_SHORT).show();
                 if (isRefresh) {
                     swipeRefreshLayout.setRefreshing(false);
                 }

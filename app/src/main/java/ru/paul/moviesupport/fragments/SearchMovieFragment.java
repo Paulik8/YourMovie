@@ -233,7 +233,7 @@ public class SearchMovieFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
                 searchNothing();
-                Toast.makeText(getActivity().getApplicationContext(), "Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Please check your network connection.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -289,7 +289,7 @@ public class SearchMovieFragment extends Fragment {
                 requestDownMovies = null;
                 --pageNumber;
                 context.sendBroadcast(intent);
-                Toast.makeText(getActivity().getApplicationContext(),"Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Please check your network connection.", Toast.LENGTH_SHORT).show();
             }
         });
     }
