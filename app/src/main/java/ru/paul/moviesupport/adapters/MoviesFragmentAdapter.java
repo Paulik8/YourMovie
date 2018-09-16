@@ -228,10 +228,13 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     }
 
     private String convertToString(String date) {
-        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA);
+        //DateFormat inputFormat = DateFormat.getDateInstance();
         try {
             Date inputDate = inputFormat.parse(date);
-            DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
+            //DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
+            DateFormat outputFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.CANADA);
             String outputDate = outputFormat.format(inputDate);
             return outputDate;
         } catch (ParseException e) {

@@ -62,6 +62,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
     public static final String STARED_REMOVE = "STARED_REMOVE";
     public static final String STARED_SAVE = "STARED_SAVE";
+    public static final String HIDE_SEARCH = "HIDE_SEARCH";
 
     Intent intent;
     Database database;
@@ -89,6 +90,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         ButterKnife.bind(this, v);
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
+        //((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
         pageNumber = 1;
         intent = new Intent(HANDLER_MESSAGE);
         database = new Database(getActivity());
@@ -100,6 +102,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         intentFilter.addAction(CHANGE_TOOLBAR);
         intentFilter.addAction(STARED_REMOVE);
         intentFilter.addAction(STARED_SAVE);
+        intentFilter.addAction(HIDE_SEARCH);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -146,6 +149,9 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             Integer integerSave = intent.getExtras().getInt("movie");
                             database.updateMovieData(integerSave);
                             database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
+                            break;
+                        case HIDE_SEARCH:
+                            ((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
                             break;
                     }
                 }
