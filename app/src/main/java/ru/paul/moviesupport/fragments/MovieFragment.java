@@ -50,6 +50,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     Boolean isSetListener = false;
     Context context;
     Handler handler;
+    Boolean isFirst;
     List<Movie> movie;
     List<Movie> firstPageMovies;
     MoviesFragmentAdapter adapter;
@@ -62,7 +63,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
     public static final String STARED_REMOVE = "STARED_REMOVE";
     public static final String STARED_SAVE = "STARED_SAVE";
-    public static final String HIDE_SEARCH = "HIDE_SEARCH";
+    //public static final String HIDE_SEARCH = "HIDE_SEARCH";
 
     Intent intent;
     Database database;
@@ -81,6 +82,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isFirst = true;
     }
 
     @Nullable
@@ -102,7 +104,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         intentFilter.addAction(CHANGE_TOOLBAR);
         intentFilter.addAction(STARED_REMOVE);
         intentFilter.addAction(STARED_SAVE);
-        intentFilter.addAction(HIDE_SEARCH);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -146,21 +147,12 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             database.updateSearchData(integerSave);
                             database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
                             break;
-                        case CHANGE_TOOLBAR:
-                            Log.i("change", "change");
-                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-                            // Show back button
-                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                            break;
-                        case HIDE_SEARCH:
-                            ((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
-                            break;
                     }
                 }
             }
         };
         context.registerReceiver(broadcastReceiver, intentFilter);
-        Intent intentHide = new Intent(HIDE_SEARCH);
+        Intent intentHide = new Intent(MainActivity.HIDE_SEARCH);
         context.sendBroadcast(intentHide);
 
         initMoviesList();
@@ -179,7 +171,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
         Log.i("pageNumberInit", pageNumber.toString());
-        createRequest(pageNumber, false);
+        if (isFirst) {
+            createRequest(pageNumber, false);
+            isFirst = false;
+        }
     }
 
     public void setListener(List<Movie> responseMovies) {

@@ -120,12 +120,12 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
             ((MoviesViewHolder) holder).materialRippleLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
+                    Intent intent = new Intent(MainActivity.BACK_BUTTON_TOOLBAR);
                     Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
                     intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
                     intentActivity.putExtra("idMovie", movies.get(position).getId());
-                    context.sendBroadcast(intent);
                     context.sendBroadcast(intentActivity);
+                    context.sendBroadcast(intent);
                 }
             });
 

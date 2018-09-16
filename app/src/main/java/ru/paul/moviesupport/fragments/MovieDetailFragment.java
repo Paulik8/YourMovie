@@ -47,6 +47,7 @@ public class MovieDetailFragment extends Fragment{
         database = new Database(getActivity());
 
         initActivity();
+        //HIDE_SEARCH
         return v;
     }
 

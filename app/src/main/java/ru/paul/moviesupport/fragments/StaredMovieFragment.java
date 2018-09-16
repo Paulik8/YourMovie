@@ -81,17 +81,13 @@ public class StaredMovieFragment extends Fragment {
                             database.updateMovieData(movie);
                             database.updateSearchData(movie);
                             break;
-                        case CHANGE_TOOLBAR:
-                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-                            // Show back button
-                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                            break;
                     }
                 }
             }
         };
         context.registerReceiver(receiver, intentFilter);
-
+        Intent intentSearch = new Intent(MainActivity.HIDE_SEARCH);
+        context.sendBroadcast(intentSearch);
         initStaredList();
 
         return v;

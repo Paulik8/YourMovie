@@ -64,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String OPEN_FRAGMENT = "OPEN_FRAGMENT";
     static final String GENRES_REQUEST = "GENRES_REQUEST";
     static final String CLEAR_FOCUS = "CLEAR_FOCUS";
-    static final String BACK_BUTTON_TOOLBAR = "BACK_BUTTON_TOOLBAR";
-    public static final String STARED_SAVE = "STARED_SAVE";
-    public static final String STARED_REMOVE = "STARED_REMOVE";
+    public static final String BACK_BUTTON_TOOLBAR = "BACK_BUTTON_TOOLBAR";
+    public static final String HAMBURGER_TOOLBAR = "HAMBURGER_TOOLBAR";
+    public static final String HIDE_SEARCH = "HIDE_SEARCH";
 
     static final String MOVIE_FRAGMENT = "MOVIES";
     public static final String MOVIE_DETAIL_FRAGMENT = "MOVIE_DETAIL";
@@ -77,18 +77,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if (fragment instanceof SearchMovieFragment) {
-            if (!mSearchView.isIconified()) {
+        if (fragment instanceof SearchMovieFragment && !mSearchView.isIconified()) {
                 mSearchView.setIconified(true);
                 mSearchView.clearFocus();
                 mSearchView.onActionViewCollapsed();
-            }
         } else {
             super.onBackPressed();
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        // Show hamburger
-        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+        Intent intentHamburger = new Intent(HAMBURGER_TOOLBAR);
+        sendBroadcast(intentHamburger);
     }
 
     @Override
@@ -96,15 +93,9 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.search_view, menu);
         search = menu.findItem(R.id.action_search);
         mSearchView = (SearchView) search.getActionView();
-        //search.expandActionView();
         mSearchView.setQueryHint("Search");
-//        mSearchView.onActionViewExpanded();
-//        mSearchView.setQuery("abc", false);
-
 
         menuActivity = menu;
-//        Intent intent = new Intent(MovieFragment.HIDE_SEARCH);
-//        sendBroadcast(intent);
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -120,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-//                mAdapter.getFilter().filter(newText);
-//                return true;
                 return false;
             }
         });
@@ -162,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(OPEN_FRAGMENT);
         intentFilter.addAction(GENRES_REQUEST);
         intentFilter.addAction(CLEAR_FOCUS);
+        intentFilter.addAction(HIDE_SEARCH);
         intentFilter.addAction(BACK_BUTTON_TOOLBAR);
+        intentFilter.addAction(HAMBURGER_TOOLBAR);
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -175,23 +166,17 @@ public class MainActivity extends AppCompatActivity {
                         case GENRES_REQUEST:
                             createGenresRequest();
                         break;
+                        case HIDE_SEARCH:
+                            menuActivity.findItem(R.id.action_search).setVisible(false);
+                            break;
                         case BACK_BUTTON_TOOLBAR:
                             actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-                            // Show back button
                             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                             break;
-//                        case STARED_REMOVE:
-//                            Integer integerRemove = intent.getExtras().getInt("movie");
-//                            database.updateMovieData(integerRemove);
-//                            database.updateSearchData(integerRemove);
-//                            database.removeFromStaredData(integerRemove);
-//                            break;
-//                        case STARED_SAVE:
-//                            Integer integerSave = intent.getExtras().getInt("movie");
-//                            database.updateMovieData(integerSave);
-//                            database.updateSearchData(integerSave);
-//                            database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
-//                            break;
+                        case HAMBURGER_TOOLBAR:
+                            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                            actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+                            break;
                     }
                 }
             }
