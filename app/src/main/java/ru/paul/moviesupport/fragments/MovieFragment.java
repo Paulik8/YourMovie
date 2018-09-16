@@ -134,21 +134,23 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         case CREATE_REQUEST:
                             createRequest(1, true);
                             break;
-                        case CHANGE_TOOLBAR:
-                            Log.i("change", "change");
-                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-                            // Show back button
-                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                            break;
                         case STARED_REMOVE:
                             Integer integerRemove = intent.getExtras().getInt("movie");
                             database.updateMovieData(integerRemove);
+                            database.updateSearchData(integerRemove);
                             database.removeFromStaredData(integerRemove);
                             break;
                         case STARED_SAVE:
                             Integer integerSave = intent.getExtras().getInt("movie");
                             database.updateMovieData(integerSave);
+                            database.updateSearchData(integerSave);
                             database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
+                            break;
+                        case CHANGE_TOOLBAR:
+                            Log.i("change", "change");
+                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+                            // Show back button
+                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                             break;
                         case HIDE_SEARCH:
                             ((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
@@ -158,6 +160,8 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             }
         };
         context.registerReceiver(broadcastReceiver, intentFilter);
+        Intent intentHide = new Intent(HIDE_SEARCH);
+        context.sendBroadcast(intentHide);
 
         initMoviesList();
 
@@ -247,7 +251,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 requestDownMovies = null;
                 --pageNumber;
                 context.sendBroadcast(intent);
-                Toast.makeText(context,"Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Please check you network connection.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -301,7 +305,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     isSetListener = true;
                 }
                 //}
-                Toast.makeText(context,"Отсутствует подключение к интернету.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Please check you network connection.", Toast.LENGTH_SHORT).show();
                 if (isRefresh) {
                     swipeRefreshLayout.setRefreshing(false);
                 }

@@ -79,6 +79,7 @@ public class StaredMovieFragment extends Fragment {
                             database.removeFromStaredData(intent.getExtras().getInt("movie"));
                             adapter.notifyItemRemoved(pos);
                             database.updateMovieData(movie);
+                            database.updateSearchData(movie);
                             break;
                         case CHANGE_TOOLBAR:
                             ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);

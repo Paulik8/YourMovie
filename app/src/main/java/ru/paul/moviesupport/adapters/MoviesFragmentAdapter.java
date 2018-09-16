@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -34,6 +35,7 @@ import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
 import ru.paul.moviesupport.R;
 import ru.paul.moviesupport.fragments.MovieFragment;
+import ru.paul.moviesupport.fragments.SearchMovieFragment;
 import ru.paul.moviesupport.models.Movie;
 
 public class MoviesFragmentAdapter extends RecyclerView.Adapter {
@@ -51,6 +53,8 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
     public MoviesFragmentAdapter(Context context, List<Movie> movies, RecyclerView recyclerView) {
         this.context = context;
         this.movies = movies;
+
+        //((MainActivity) context).getSupportFragmentManager().findFragmentById(R.id.container);
 
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
 
@@ -132,14 +136,21 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     Movie movie = movies.get(position);
                     Integer idMovie = movie.getId();
+                    Fragment fragment = ((MainActivity) context).getSupportFragmentManager().findFragmentById(R.id.container);
                     Intent intent;
                     if (!movie.isSaved()) {
                         byte[] movieByte = SerializationUtils.serialize(movie);
-                        intent = new Intent(MovieFragment.STARED_SAVE);
+                        if (fragment instanceof MovieFragment)
+                            intent = new Intent(MovieFragment.STARED_SAVE);
+                        else
+                            intent = new Intent(SearchMovieFragment.STARED_SAVE);
                         intent.putExtra("movieByte", movieByte);
                         intent.putExtra("movie", idMovie);
                     } else {
-                        intent = new Intent(MovieFragment.STARED_REMOVE);
+                        if (fragment instanceof MovieFragment)
+                            intent = new Intent(MovieFragment.STARED_REMOVE);
+                        else
+                            intent = new Intent(SearchMovieFragment.STARED_REMOVE);
                         intent.putExtra("movie", idMovie);
                     }
                     context.sendBroadcast(intent);
@@ -190,25 +201,32 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
 
     class MoviesViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.movies_item)
+        //@BindView(R.id.movies_item)
         MaterialRippleLayout materialRippleLayout;
-        @BindView(R.id.movies_img)
+        //@BindView(R.id.movies_img)
         ImageView moviesImg;
-        @BindView(R.id.movies_title)
+        //@BindView(R.id.movies_title)
         TextView moviesTitle;
-        @BindView(R.id.movies_year)
+        //@BindView(R.id.movies_year)
         TextView moviesYear;
-        @BindView(R.id.movies_img_rated)
+        //@BindView(R.id.movies_img_rated)
         ImageView moviesImgRated;
-        @BindView(R.id.movies_text_rated)
+        //@BindView(R.id.movies_text_rated)
         TextView moviesTextRated;
-        @BindView(R.id.movies_img_saved_or_common)
+        //@BindView(R.id.movies_img_saved_or_common)
         ImageView moviesImgSavedOrCommon;
 
 
         MoviesViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            materialRippleLayout = itemView.findViewById(R.id.movies_item);
+            moviesImg = itemView.findViewById(R.id.movies_img);
+            moviesTitle = itemView.findViewById(R.id.movies_title);
+            moviesYear = itemView.findViewById(R.id.movies_year);
+            moviesImgRated = itemView.findViewById(R.id.movies_img_rated);
+            moviesTextRated = itemView.findViewById(R.id.movies_text_rated);
+            moviesImgSavedOrCommon = itemView.findViewById(R.id.movies_img_saved_or_common);
+            //ButterKnife.bind(this, itemView);
         }
 
 //        @OnClick(R.id.movies_item)

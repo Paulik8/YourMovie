@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2436841671267570814",
-      "lastPropertyId": "4:8661529337714379075",
+      "lastPropertyId": "5:5000133138489055877",
       "name": "MovieData",
       "properties": [
         {
@@ -15,6 +15,10 @@
         {
           "id": "4:8661529337714379075",
           "name": "movie"
+        },
+        {
+          "id": "5:5000133138489055877",
+          "name": "idOfMovie"
         }
       ],
       "relations": []

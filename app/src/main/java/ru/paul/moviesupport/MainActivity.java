@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     @BindView(R.id.empty_view)
     TextView tvEmptyView;
+    Database database;
+    SearchView mSearchView;
+    MenuItem search;
     BroadcastReceiver receiver;
     public NavigationDrawer navigationDrawer;
     FragmentManager fragmentManager;
@@ -60,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String OPEN_FRAGMENT = "OPEN_FRAGMENT";
     static final String GENRES_REQUEST = "GENRES_REQUEST";
+    static final String CLEAR_FOCUS = "CLEAR_FOCUS";
+    static final String BACK_BUTTON_TOOLBAR = "BACK_BUTTON_TOOLBAR";
+    public static final String STARED_SAVE = "STARED_SAVE";
+    public static final String STARED_REMOVE = "STARED_REMOVE";
 
     static final String MOVIE_FRAGMENT = "MOVIES";
     public static final String MOVIE_DETAIL_FRAGMENT = "MOVIE_DETAIL";
@@ -69,7 +76,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment instanceof SearchMovieFragment) {
+            if (!mSearchView.isIconified()) {
+                mSearchView.setIconified(true);
+                mSearchView.clearFocus();
+                mSearchView.onActionViewCollapsed();
+            }
+        } else {
+            super.onBackPressed();
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         // Show hamburger
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
@@ -78,18 +94,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_view, menu);
-        MenuItem search = menu.findItem(R.id.action_search);
-        SearchView mSearchView = (SearchView) search.getActionView();
+        search = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) search.getActionView();
+        //search.expandActionView();
         mSearchView.setQueryHint("Search");
+//        mSearchView.onActionViewExpanded();
+//        mSearchView.setQuery("abc", false);
+
 
         menuActivity = menu;
-        Intent intent = new Intent(MovieFragment.HIDE_SEARCH);
-        sendBroadcast(intent);
+//        Intent intent = new Intent(MovieFragment.HIDE_SEARCH);
+//        sendBroadcast(intent);
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                mSearchView.clearFocus();
+                Intent intent = new Intent(SearchMovieFragment.SEARCH);
+                intent.putExtra("query", query);
+                sendBroadcast(intent);
+                Intent intentToolbar = new Intent(BACK_BUTTON_TOOLBAR);
+                sendBroadcast(intentToolbar);
+                return true;
             }
 
             @Override
@@ -126,14 +152,17 @@ public class MainActivity extends AppCompatActivity {
         //navigationView.setNavigationItemSelectedListener(this);
 
         //createNavigationDrawer();
-//        Database database = new Database(this);
+        database = new Database(this);
 //        database.clearMovieData();
 //        database.clearStaredData();
 //        database.clearMovieDetailData();
+//        database.clearSearchData();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(OPEN_FRAGMENT);
         intentFilter.addAction(GENRES_REQUEST);
+        intentFilter.addAction(CLEAR_FOCUS);
+        intentFilter.addAction(BACK_BUTTON_TOOLBAR);
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -146,6 +175,23 @@ public class MainActivity extends AppCompatActivity {
                         case GENRES_REQUEST:
                             createGenresRequest();
                         break;
+                        case BACK_BUTTON_TOOLBAR:
+                            actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+                            // Show back button
+                            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                            break;
+//                        case STARED_REMOVE:
+//                            Integer integerRemove = intent.getExtras().getInt("movie");
+//                            database.updateMovieData(integerRemove);
+//                            database.updateSearchData(integerRemove);
+//                            database.removeFromStaredData(integerRemove);
+//                            break;
+//                        case STARED_SAVE:
+//                            Integer integerSave = intent.getExtras().getInt("movie");
+//                            database.updateMovieData(integerSave);
+//                            database.updateSearchData(integerSave);
+//                            database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
+//                            break;
                     }
                 }
             }
@@ -261,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<Genres> call, @NonNull Response<Genres> response) {
                 if (response.body() != null) {
-                    Database database = new Database((Activity) getApplicationContext());
                     if (database.getGenreData() != null) {
                         gerneList = new ArrayList<>(response.body().getGenres());
                     }
@@ -273,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<Genres> call, @NonNull Throwable t) {
-                Database database = new Database((Activity) getApplicationContext());
                 if (database.getGenreData() != null) {
                     gerneList = new ArrayList<>(database.getGenreList());
                 }

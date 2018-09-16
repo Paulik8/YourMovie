@@ -29,6 +29,11 @@ public interface NetworkService {
                                       @Query("api_key") String apiKey,
                                       @Query("language") String language);
 
+    @GET("search/movie")
+    Call <MoviePage> getSearchPage (@Query("api_key") String apiKey,
+                                    @Query("language") String language,
+                                    @Query("query") String query,
+                                    @Query("page") Integer page);
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("https://api.themoviedb.org/3/")
             .addConverterFactory(GsonConverterFactory.create())

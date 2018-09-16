@@ -18,6 +18,8 @@ import ru.paul.moviesupport.entities.MovieData;
 import ru.paul.moviesupport.entities.MovieData_;
 import ru.paul.moviesupport.entities.MovieDetailData;
 import ru.paul.moviesupport.entities.MovieDetailData_;
+import ru.paul.moviesupport.entities.SearchData;
+import ru.paul.moviesupport.entities.SearchData_;
 import ru.paul.moviesupport.entities.StaredData;
 import ru.paul.moviesupport.entities.StaredData_;
 import ru.paul.moviesupport.models.Genre;
@@ -49,9 +51,18 @@ public class Database {
         return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(GenreData.class);
     }
 
+    private Box<SearchData> getSearchDataBox() {
+        return ((MovieSupportApplication) activity.getApplication()).getBoxStore().boxFor(SearchData.class);
+    }
+
     private List<MovieData> getMovieData() {
         Box<MovieData> movieDataBox = getMovieDataBox();
         return movieDataBox.getAll();
+    }
+
+    private List<SearchData> getSearchData() {
+        Box<SearchData> box = getSearchDataBox();
+        return  box.getAll();
     }
 
     private StaredData getStaredOneData(Integer id) {
@@ -73,6 +84,57 @@ public class Database {
             }
         }
         return -1;
+    }
+
+    public void saveSearchData(MoviePage moviePage) {
+        List<Movie> movies = moviePage.getResults();
+        List<SearchData> moviesToDatabase = new ArrayList<>();
+        List<SearchData> movieData = getSearchData();
+        if (movieData.size() > 0 && moviePage.getPage() == 1) {
+            clearSearchData();
+        }
+        for (int i = 0; i < moviePage.getResults().size(); i++) {
+            byte[] newMovie = SerializationUtils.serialize(movies.get(i));
+            moviesToDatabase.add(new SearchData(i + 1 + getSearchData().size(), movies.get(i).getId(), newMovie));
+        }
+
+        getSearchDataBox().put(moviesToDatabase);
+        //clearSearchData();
+    }
+
+    public List<Movie> getMoviesSearch() {
+        if (getSearchData().size() > 0) {
+            List<SearchData> movieData = getSearchData();
+            List<Movie> moviesFromDatabase = new ArrayList<>();
+            for (int i = 0; i < movieData.size(); i++) {
+                Movie movie = SerializationUtils.deserialize(movieData.get(i).getMovie());
+                moviesFromDatabase.add(movie);
+            }
+            return moviesFromDatabase;
+        }
+        else
+            return null;
+    }
+
+    public void updateSearchData(Integer id) {
+        Movie movieFromDatabase;
+        Box<SearchData> searchDataBox = getSearchDataBox();
+        //byte [] movieByte = SerializationUtils.serialize(movie);
+        Query<SearchData> query =  searchDataBox.query().equal(SearchData_.searchIdMovie, id).build();
+        SearchData movieDataFromDatabase = query.findFirst();
+        if (movieDataFromDatabase == null) {
+            return;
+        }
+        movieFromDatabase = SerializationUtils.deserialize(movieDataFromDatabase.getMovie());
+        if (!movieFromDatabase.isSaved()) {
+            movieFromDatabase.setSaved(true);
+        } else {
+            movieFromDatabase.setSaved(false);
+        }
+        byte[] movieByteToDatabase = SerializationUtils.serialize(movieFromDatabase);
+        movieDataFromDatabase.setMovie(movieByteToDatabase);
+        searchDataBox.put(movieDataFromDatabase);
+        Log.i("tag","tag");
     }
 
     public void updateMovieData(Integer id) {
@@ -149,20 +211,6 @@ public class Database {
     public List<Movie> getFirstPageMovies() {//исправить, потому что когда открыл 2 страницы, покажет только первую, а должно показать сохраненные две
         if (getMovieData().size() > 0) {
             List<MovieData> movieData = getMovieData();
-//            Movie movie0 = SerializationUtils.deserialize(getMovieData().get(0).getMovie());
-//            Log.i("movieData[0]", movie0.getOriginalTitle());
-//            Movie movie1 = SerializationUtils.deserialize(getMovieData().get(1).getMovie());
-//            Log.i("movieData[1]", movie1.getOriginalTitle());
-//            Movie movie19 = SerializationUtils.deserialize(getMovieData().get(19).getMovie());
-//            Log.i("movieData[19]", movie19.getOriginalTitle());
-//            if (getMovieData().size() > 20) {
-//                movie19 = SerializationUtils.deserialize(getMovieData().get(19).getMovie());
-//                Log.i("movieData[19]", movie19.getOriginalTitle());
-//                Movie movie20 = SerializationUtils.deserialize(getMovieData().get(20).getMovie());
-//                Log.i("movieData[20]", movie20.getOriginalTitle());
-//                Movie movie21 = SerializationUtils.deserialize(getMovieData().get(21).getMovie());
-//                Log.i("movieData[21]", movie21.getOriginalTitle());
-//            }
             List<Movie> moviesFromDatabase = new ArrayList<>();
             for (int i = 0; i < movieData.size(); i++) {
                 Movie movie = SerializationUtils.deserialize(movieData.get(i).getMovie());
@@ -237,6 +285,9 @@ public class Database {
 
     public void clearMovieData() {
         getMovieDataBox().removeAll();
+    }
+    public void clearSearchData() {
+        getSearchDataBox().removeAll();
     }
     public void clearStaredData() {
         getStaredDataBox().removeAll();

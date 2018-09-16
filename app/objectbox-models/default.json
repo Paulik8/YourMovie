@@ -82,9 +82,29 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:1060053780891275105",
+      "lastPropertyId": "3:4226287716899693959",
+      "name": "SearchData",
+      "properties": [
+        {
+          "id": "1:5987669264052582085",
+          "name": "id"
+        },
+        {
+          "id": "2:9065185804593300421",
+          "name": "searchIdMovie"
+        },
+        {
+          "id": "3:4226287716899693959",
+          "name": "movie"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "4:93926686816995440",
+  "lastEntityId": "5:1060053780891275105",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
