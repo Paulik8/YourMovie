@@ -54,7 +54,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     List<Movie> movie;
     List<Movie> firstPageMovies;
     MoviesFragmentAdapter adapter;
-    Integer pageNumber;
+    Integer pageNumber = 1;
     BroadcastReceiver broadcastReceiver;
     List<Movie> requestDownMovies;
 
@@ -93,7 +93,7 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
         //((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
-        pageNumber = 1;
+        //pageNumber = 1;
         intent = new Intent(HANDLER_MESSAGE);
         database = new Database(getActivity());
         context = getContext();
@@ -164,15 +164,17 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         //Database database = new Database(getActivity());
         firstPageMovies = database.getFirstPageMovies();
         if (firstPageMovies != null) {
+            movie = firstPageMovies;
             moviesList.setLayoutManager(new LinearLayoutManager(context));
             MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, firstPageMovies, moviesList);//
             moviesList.setAdapter(adapter);
             adapter.notifyDataSetChanged();
             Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
+        setListener(firstPageMovies);
         Log.i("pageNumberInit", pageNumber.toString());
         if (isFirst) {
-                                                                                                                                                                                                                                                                                                                                                                                                        createRequest(pageNumber, false);
+            createRequest(pageNumber, false);
             isFirst = false;
         }
     }
@@ -279,10 +281,11 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     }
                         database.saveMovieData(page);
                     Log.i("pageNumberNow", pageNumber.toString());
-                        if (!isRefresh) {
-                            setListener(movies);
-                            isSetListener = true;
-                        } else {
+//                        if (!isRefresh) {
+//                            setListener(movies);
+//                            isSetListener = true;
+//                        } else
+                        {
                             movie.clear();
                             movie.addAll(movies);
                             swipeRefreshLayout.setRefreshing(false);
@@ -295,10 +298,10 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
                 //if (firstPageMovies != null) {
-                if (!isSetListener) {
-                    setListener(firstPageMovies);
-                    isSetListener = true;
-                }
+//                if (!isSetListener) {
+//                    setListener(firstPageMovies);
+//                    isSetListener = true;
+//                }
                 //}
                 Toast.makeText(getActivity().getApplicationContext(),"Please check your network connection.", Toast.LENGTH_SHORT).show();
                 if (isRefresh) {
