@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     SearchView mSearchView;
     MenuItem search;
     BroadcastReceiver receiver;
-    public NavigationDrawer navigationDrawer;
     FragmentManager fragmentManager;
     public Boolean isGenres = false;
     public ActionBarDrawerToggle actionBarDrawerToggle;
@@ -138,14 +137,8 @@ public class MainActivity extends AppCompatActivity {
         });
         setupDrawerContent(navigationView);
         actionBarDrawerToggle.syncState();
-        //navigationView.setNavigationItemSelectedListener(this);
 
-        //createNavigationDrawer();
         database = new Database(this);
-//        database.clearMovieData();
-//        database.clearStaredData();
-//        database.clearMovieDetailData();
-//        database.clearSearchData();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(OPEN_FRAGMENT);
@@ -183,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
         };
         registerReceiver(receiver, intentFilter);
 
-        //createGenresRequest();
 
         Intent startIntent = new Intent(OPEN_FRAGMENT);
         startIntent.putExtra("fragment", MOVIE_FRAGMENT);
@@ -222,19 +214,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        // Highlight the selected item has been done by NavigationView
+
         menuItem.setChecked(true);
-        // Set action bar title
+
         setTitle(menuItem.getTitle());
-        // Close the navigation drawer
+
         drawerLayout.closeDrawers();
     }
 
-
-//    private void createNavigationDrawer() {
-//        navigationDrawer = new NavigationDrawer(this, toolbar);
-//        navigationDrawer.initNavigationDrawer();
-//    }
 
     public void openFragment(Intent intent) {
         Fragment fragment = fragmentManager.findFragmentById(R.id.container);
@@ -281,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createGenresRequest() {
-        Log.i("req", "req");
         final NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
         Call<Genres> call = networkService
                 .getGenres(Constants.API_KEY,

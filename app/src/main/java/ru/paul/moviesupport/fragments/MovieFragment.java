@@ -63,7 +63,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
     public static final String STARED_REMOVE = "STARED_REMOVE";
     public static final String STARED_SAVE = "STARED_SAVE";
-    //public static final String HIDE_SEARCH = "HIDE_SEARCH";
 
     Intent intent;
     Database database;
@@ -92,8 +91,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         ButterKnife.bind(this, v);
         swipeRefreshLayout.setOnRefreshListener(this);
         handler = new Handler();
-        //((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
-        //pageNumber = 1;
         intent = new Intent(HANDLER_MESSAGE);
         database = new Database(getActivity());
         context = getContext();
@@ -116,19 +113,12 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                     //   remove progress item
                                     movie.remove(movie.size() - 1);
                                     adapter.notifyItemRemoved(movie.size());
-                                    //add items one by one
-                                    Log.i("remove", "remove");
 
                                     if (requestDownMovies != null) {
                                         movie.addAll(requestDownMovies);
                                         adapter.notifyDataSetChanged();
                                     }
-    //                        for (int i = start + 1; i < end; i++) {
-    //                            movie.add(requestDownMovies.get(i));
-    //                            adapter.notifyItemInserted(movie.size());
-    //                        }
                                     adapter.setLoaded();
-                                    //or you can add all at once but do not forget to call mAdapter.notifyDataSetChanged();
                                 }
                             });
                             break;
@@ -161,7 +151,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private void initMoviesList() {
-        //Database database = new Database(getActivity());
         firstPageMovies = database.getFirstPageMovies();
         if (firstPageMovies != null) {
             movie = firstPageMovies;
@@ -169,10 +158,8 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, firstPageMovies, moviesList);//
             moviesList.setAdapter(adapter);
             adapter.notifyDataSetChanged();
-            Log.i("movies", firstPageMovies.get(0).getOriginalTitle());
         }
         setListener(firstPageMovies);
-        Log.i("pageNumberInit", pageNumber.toString());
         if (isFirst) {
             createRequest(pageNumber, false);
             isFirst = false;
@@ -183,8 +170,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if (firstPageMovies == null) {
             moviesList.setLayoutManager(new LinearLayoutManager(context));
         }
-        Log.i("set", "set");
-        //}
         if (responseMovies == null) {
             movie = new ArrayList<>();
         } else {
@@ -192,26 +177,21 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
         adapter = new MoviesFragmentAdapter(context, movie, moviesList);
         moviesList.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();//
 
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                //add null , so the adapter will check view_type and show progress bar at bottom
+
                 createRequestDown(++pageNumber);
-                Log.i("pageNumber", pageNumber.toString());
+
                 movie.add(null);
                 adapter.notifyItemInserted(movie.size() - 1);
             }
         });
     }
 
-//    public void refreshGenresAdapter(List<Genre> genres) {
-//        adapter.setGenres(genres);
-//    }
 
     private void createRequestDown(final Integer page) {
-        Log.i("req", "req");
         final NetworkService networkService = NetworkService.retrofit.create(NetworkService.class);
         Call<MoviePage> call = networkService
                 .getPage(Constants.API_KEY,
@@ -226,7 +206,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 MoviePage page = response.body();
                 if (page != null) {
                     List<Movie> movies = page.getResults();
-                    //TODO
                     for (int i = 0; i < movies.size(); i++) {
                         Integer result = database.checkStaredData(movies.get(i).getId());
                         if (result == 1) {
@@ -243,8 +222,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-                //setListener(moviePage);
-                Log.i("requestFail", "fail");
                 requestDownMovies = null;
                 --pageNumber;
                 context.sendBroadcast(intent);
@@ -269,8 +246,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 MoviePage page = response.body();
                 if (page != null) {
                     List<Movie> movies = page.getResults();
-                    Log.i("page", page.getResults().get(0).getOriginalTitle());
-                    //TODO
                     for (int i = 0; i < movies.size(); i++) {
                         Integer result = database.checkStaredData(movies.get(i).getId());
                         if (result == 1) {
@@ -280,11 +255,6 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         }
                     }
                         database.saveMovieData(page);
-                    Log.i("pageNumberNow", pageNumber.toString());
-//                        if (!isRefresh) {
-//                            setListener(movies);
-//                            isSetListener = true;
-//                        } else
                         {
                             movie.clear();
                             movie.addAll(movies);
@@ -292,17 +262,11 @@ public class MovieFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             adapter.notifyDataSetChanged();
                         }
                 }
-                //database.deleteDB();
             }
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-                //if (firstPageMovies != null) {
-//                if (!isSetListener) {
-//                    setListener(firstPageMovies);
-//                    isSetListener = true;
-//                }
-                //}
+
                 Toast.makeText(getActivity().getApplicationContext(),"Please check your network connection.", Toast.LENGTH_SHORT).show();
                 if (isRefresh) {
                     swipeRefreshLayout.setRefreshing(false);

@@ -225,13 +225,10 @@ public class MovieDetailFragment extends Fragment{
     private String convertToString(String date) {
 
         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA);
-        //DateFormat inputFormat = DateFormat.getDateInstance();
         try {
             Date inputDate = inputFormat.parse(date);
-            //DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
             DateFormat outputFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.CANADA);
-            String outputDate = outputFormat.format(inputDate);
-            return outputDate;
+            return outputFormat.format(inputDate);
         } catch (ParseException e) {
             e.printStackTrace();
             return null;

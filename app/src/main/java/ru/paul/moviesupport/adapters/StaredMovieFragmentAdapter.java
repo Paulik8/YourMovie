@@ -1,6 +1,5 @@
 package ru.paul.moviesupport.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -27,7 +26,6 @@ import butterknife.ButterKnife;
 import ru.paul.moviesupport.Constants;
 import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.R;
-import ru.paul.moviesupport.fragments.MovieFragment;
 import ru.paul.moviesupport.fragments.StaredMovieFragment;
 import ru.paul.moviesupport.models.Movie;
 
@@ -104,19 +102,12 @@ public class StaredMovieFragmentAdapter extends RecyclerView.Adapter{
 
     class StaredMovieViewHolder extends RecyclerView.ViewHolder{
 
-        //@BindView(R.id.movies_item)
         MaterialRippleLayout materialRippleLayout;
-        //@BindView(R.id.movies_img)
         ImageView moviesImg;
-        //@BindView(R.id.movies_title)
         TextView moviesTitle;
-        //@BindView(R.id.movies_year)
         TextView moviesYear;
-        //@BindView(R.id.movies_img_rated)
         ImageView moviesImgRated;
-        //@BindView(R.id.movies_text_rated)
         TextView moviesTextRated;
-        //@BindView(R.id.movies_img_saved_or_common)
         ImageView moviesImgSavedOrCommon;
 
 
@@ -134,10 +125,11 @@ public class StaredMovieFragmentAdapter extends RecyclerView.Adapter{
     }
 
     private String convertToString(String date) {
-        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA);
         try {
             Date inputDate = inputFormat.parse(date);
-            DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
+            DateFormat outputFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.CANADA);
             return outputFormat.format(inputDate);
         } catch (ParseException e) {
             e.printStackTrace();

@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +51,6 @@ public class SearchMovieFragment extends Fragment {
     MoviesFragmentAdapter adapter;
 
     static final String HANDLER_MESSAGE = "HANDLER_MESSAGE";
-    static final String CHANGE_TOOLBAR = "CHANGE_TOOLBAR";
     static final String SHOW_SEARCH = "SHOW_SEARCH";
     public static final String SEARCH = "SEARCH";
     public static final String STARED_REMOVE = "STARED_REMOVE";
@@ -63,7 +61,6 @@ public class SearchMovieFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("search", "search");
     }
 
     @Nullable
@@ -74,7 +71,6 @@ public class SearchMovieFragment extends Fragment {
         database = new Database(getActivity());
         context = getContext();
         handler = new Handler();
-        //((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(false);
         pageNumber = 1;
         intent = new Intent(HANDLER_MESSAGE);
         database = new Database(getActivity());
@@ -82,7 +78,6 @@ public class SearchMovieFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HANDLER_MESSAGE);
-        intentFilter.addAction(CHANGE_TOOLBAR);
         intentFilter.addAction(SHOW_SEARCH);
         intentFilter.addAction(SEARCH);
         intentFilter.addAction(STARED_REMOVE);
@@ -97,11 +92,8 @@ public class SearchMovieFragment extends Fragment {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //   remove progress item
                                     movie.remove(movie.size() - 1);
                                     adapter.notifyItemRemoved(movie.size());
-                                    //add items one by one
-                                    Log.i("remove", "remove");
 
                                     if (requestDownMovies != null) {
                                         movie.addAll(requestDownMovies);
@@ -123,20 +115,16 @@ public class SearchMovieFragment extends Fragment {
                             database.updateSearchData(integerSave);
                             database.saveStaredData(intent.getExtras().getByteArray("movieByte"), integerSave);
                             break;
-                        case CHANGE_TOOLBAR:
-                            ((MainActivity)getActivity()).actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-                            // Show back button
-                            ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                            break;
                         case SHOW_SEARCH:
                             ((MainActivity) getActivity()).menuActivity.findItem(R.id.action_search).setVisible(true);
                             break;
                         case SEARCH:
                             query = null;
-                            query = intent.getExtras().getString("query");
-
                             pageNumber = 1;
-                            createRequest(pageNumber, query);
+                            if (intent.getExtras() != null) {
+                                query = intent.getExtras().getString("query");
+                                createRequest(pageNumber, query);
+                            }
                             break;
                     }
                 }
@@ -156,7 +144,6 @@ public class SearchMovieFragment extends Fragment {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             MoviesFragmentAdapter adapter = new MoviesFragmentAdapter(context, moviesFromDatabase, recyclerView);
             recyclerView.setAdapter(adapter);
-            //adapter.notifyDataSetChanged();
         }
         setListener(moviesFromDatabase);
     }
@@ -165,8 +152,6 @@ public class SearchMovieFragment extends Fragment {
         if (moviesFromDatabase == null) {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         }
-        Log.i("set", "set");
-        //}
         if (responseMovies == null) {
             movie = new ArrayList<>();
         } else {
@@ -174,14 +159,12 @@ public class SearchMovieFragment extends Fragment {
         }
         adapter = new MoviesFragmentAdapter(context, movie, recyclerView);
         recyclerView.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();//
 
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                //add null , so the adapter will check view_type and show progress bar at bottom
+
                 createRequestDown(++pageNumber, query);
-                Log.i("pageNumber", pageNumber.toString());
                 movie.add(null);
                 adapter.notifyItemInserted(movie.size() - 1);
             }
@@ -208,7 +191,6 @@ public class SearchMovieFragment extends Fragment {
                 MoviePage page = response.body();
                 if (page != null && page.getResults().size() > 0) {
                         List<Movie> movies = page.getResults();
-                        //TODO
                         for (int i = 0; i < movies.size(); i++) {
                             Integer result = database.checkStaredData(movies.get(i).getId());
                             if (result == 1) {
@@ -218,7 +200,6 @@ public class SearchMovieFragment extends Fragment {
                             }
                         }
                         database.saveSearchData(page);
-                        Log.i("pageNumberNow", pageNumber.toString());
 
                         movie.clear();
                         movie.addAll(movies);
@@ -227,7 +208,6 @@ public class SearchMovieFragment extends Fragment {
                     searchNothing();
                     Toast.makeText(getActivity().getApplicationContext(), "No matches were found.", Toast.LENGTH_SHORT).show();
                 }
-                //database.deleteDB();
             }
 
             @Override
@@ -245,7 +225,6 @@ public class SearchMovieFragment extends Fragment {
     }
 
     private void createRequestDown(final Integer page, String query) {
-        Log.i("req", "req");
         if (query == null) {
             requestDownMovies = null;
             context.sendBroadcast(intent);
@@ -265,7 +244,6 @@ public class SearchMovieFragment extends Fragment {
                 MoviePage page = response.body();
                 if (page != null && page.getResults().size() > 0)  {
                         List<Movie> movies = page.getResults();
-                        //TODO
                         for (int i = 0; i < movies.size(); i++) {
                             Integer result = database.checkStaredData(movies.get(i).getId());
                             if (result == 1) {
@@ -284,8 +262,6 @@ public class SearchMovieFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<MoviePage> call, @NonNull Throwable t) {
-                //setListener(moviePage);
-                Log.i("requestFail", "fail");
                 requestDownMovies = null;
                 --pageNumber;
                 context.sendBroadcast(intent);

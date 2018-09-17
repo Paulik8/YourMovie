@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Movie Support</string>
+    <string name="app_name">YMovie</string>
     <string name="action_settings">Settings</string>
 
     <string name="drawer_item_movies_list">Movies</string>

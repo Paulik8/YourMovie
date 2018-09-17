@@ -119,7 +119,6 @@ public class Database {
     public void updateSearchData(Integer id) {
         Movie movieFromDatabase;
         Box<SearchData> searchDataBox = getSearchDataBox();
-        //byte [] movieByte = SerializationUtils.serialize(movie);
         Query<SearchData> query =  searchDataBox.query().equal(SearchData_.searchIdMovie, id).build();
         SearchData movieDataFromDatabase = query.findFirst();
         if (movieDataFromDatabase == null) {
@@ -134,13 +133,11 @@ public class Database {
         byte[] movieByteToDatabase = SerializationUtils.serialize(movieFromDatabase);
         movieDataFromDatabase.setMovie(movieByteToDatabase);
         searchDataBox.put(movieDataFromDatabase);
-        Log.i("tag","tag");
     }
 
     public void updateMovieData(Integer id) {
         Movie movieFromDatabase;
         Box<MovieData> movieDataBox = getMovieDataBox();
-        //byte [] movieByte = SerializationUtils.serialize(movie);
         Query<MovieData> query =  movieDataBox.query().equal(MovieData_.idOfMovie, id).build();
         MovieData movieDataFromDatabase = query.findFirst();
         if (movieDataFromDatabase == null) {
@@ -155,7 +152,6 @@ public class Database {
         byte[] movieByteToDatabase = SerializationUtils.serialize(movieFromDatabase);
         movieDataFromDatabase.setMovie(movieByteToDatabase);
         movieDataBox.put(movieDataFromDatabase);
-        Log.i("tag","tag");
     }
 
     private List<StaredData> getStaredData() {
@@ -283,7 +279,7 @@ public class Database {
         getGenreDataBox().put(genreData);
     }
 
-    public void clearMovieData() {
+    private void clearMovieData() {
         getMovieDataBox().removeAll();
     }
     public void clearSearchData() {

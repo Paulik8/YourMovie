@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import ru.paul.moviesupport.Constants;
 import ru.paul.moviesupport.MainActivity;
 import ru.paul.moviesupport.OnLoadMoreListener;
@@ -54,8 +52,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
         this.context = context;
         this.movies = movies;
 
-        //((MainActivity) context).getSupportFragmentManager().findFragmentById(R.id.container);
-
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
 
             final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView
@@ -74,8 +70,7 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                                     .findLastVisibleItemPosition();
                             if (!loading
                                     && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                                // End has been reached
-                                // Do something
+
                                 if (onLoadMoreListener != null) {
                                     onLoadMoreListener.onLoadMore();
                                 }
@@ -161,7 +156,6 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
                         movie.setSaved(false);
                     }
                     notifyItemChanged(position);
-                    //setImageStaredOrCommon(position, holder);
 
                 }
             });
@@ -195,25 +189,14 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
         return movies.size();
     }
 
-    public void refreshList() {
-        notifyDataSetChanged();
-    }
-
     class MoviesViewHolder extends RecyclerView.ViewHolder {
 
-        //@BindView(R.id.movies_item)
         MaterialRippleLayout materialRippleLayout;
-        //@BindView(R.id.movies_img)
         ImageView moviesImg;
-        //@BindView(R.id.movies_title)
         TextView moviesTitle;
-        //@BindView(R.id.movies_year)
         TextView moviesYear;
-        //@BindView(R.id.movies_img_rated)
         ImageView moviesImgRated;
-        //@BindView(R.id.movies_text_rated)
         TextView moviesTextRated;
-        //@BindView(R.id.movies_img_saved_or_common)
         ImageView moviesImgSavedOrCommon;
 
 
@@ -226,35 +209,16 @@ public class MoviesFragmentAdapter extends RecyclerView.Adapter {
             moviesImgRated = itemView.findViewById(R.id.movies_img_rated);
             moviesTextRated = itemView.findViewById(R.id.movies_text_rated);
             moviesImgSavedOrCommon = itemView.findViewById(R.id.movies_img_saved_or_common);
-            //ButterKnife.bind(this, itemView);
         }
-
-//        @OnClick(R.id.movies_item)
-//        void OnMoviesClick() {
-//            Intent intent = new Intent(MovieFragment.CHANGE_TOOLBAR);
-//            Intent intentActivity = new Intent(MainActivity.OPEN_FRAGMENT);
-//            intentActivity.putExtra("fragment", MainActivity.MOVIE_DETAIL_FRAGMENT);
-//            intentActivity.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
-//            context.sendBroadcast(intent);
-//            context.sendBroadcast(intentActivity);
-////            Log.i("pos", String.format("click on %d item", getAdapterPosition()));
-////            Log.i("posTitle", String.format("click on %s title", movies.get(getAdapterPosition()).getTitle()));
-////            Intent intent = new Intent(context, MovieDetailActivity.class);
-////            intent.putExtra("idMovie", movies.get(getAdapterPosition()).getId());
-////            context.startActivity(intent);
-//        }
     }
 
     private String convertToString(String date) {
 
         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA);
-        //DateFormat inputFormat = DateFormat.getDateInstance();
         try {
             Date inputDate = inputFormat.parse(date);
-            //DateFormat outputFormat = new SimpleDateFormat("dd MMMMMMMMM yyyy", Locale.US);
             DateFormat outputFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.CANADA);
-            String outputDate = outputFormat.format(inputDate);
-            return outputDate;
+            return outputFormat.format(inputDate);
         } catch (ParseException e) {
             e.printStackTrace();
             return null;

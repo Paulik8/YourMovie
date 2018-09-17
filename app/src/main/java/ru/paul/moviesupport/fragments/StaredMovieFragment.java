@@ -61,7 +61,6 @@ public class StaredMovieFragment extends Fragment {
         ButterKnife.bind(this, v);
         context = getContext();
         database = new Database(getActivity());
-        //recyclerView.setHasFixedSize(true);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(REMOVE_MOVIE);
         intentFilter.addAction(CHANGE_TOOLBAR);
@@ -98,7 +97,6 @@ public class StaredMovieFragment extends Fragment {
         getStaredFromDatabase();
         adapter = new StaredMovieFragmentAdapter(context, movies);
         recyclerView.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();
     }
 
     private void getStaredFromDatabase() {
